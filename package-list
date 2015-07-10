@@ -1,5 +1,6 @@
 com.izforge.izpack.panels
 com.steadystate.css.dom
+com.steadystate.css.format
 com.steadystate.css.parser
 com.steadystate.css.parser.media
 com.steadystate.css.parser.selectors
@@ -8,6 +9,7 @@ com.steadystate.css.userdata
 com.steadystate.css.util
 org.lobobrowser.async
 org.lobobrowser.clientlet
+org.lobobrowser.cobra_testing
 org.lobobrowser.context
 org.lobobrowser.gui
 org.lobobrowser.html
@@ -17,6 +19,7 @@ org.lobobrowser.html.dombl
 org.lobobrowser.html.domfilter
 org.lobobrowser.html.domimpl
 org.lobobrowser.html.gui
+org.lobobrowser.html.info
 org.lobobrowser.html.io
 org.lobobrowser.html.js
 org.lobobrowser.html.jsimpl
@@ -31,12 +34,7 @@ org.lobobrowser.html.w3c.events
 org.lobobrowser.http
 org.lobobrowser.io
 org.lobobrowser.js
-org.lobobrowser.jweb.common
-org.lobobrowser.jweb.compilation
-org.lobobrowser.jweb.ext
-org.lobobrowser.jweb.java
-org.lobobrowser.jweb.javafx
-org.lobobrowser.jweb.loading
+org.lobobrowser.lobo_testing
 org.lobobrowser.main
 org.lobobrowser.primary.action
 org.lobobrowser.primary.clientlets
@@ -65,7 +63,6 @@ org.lobobrowser.util.io
 org.mozilla.classfile
 org.mozilla.javascript
 org.mozilla.javascript.annotations
-org.mozilla.javascript.arrays
 org.mozilla.javascript.ast
 org.mozilla.javascript.commonjs.module
 org.mozilla.javascript.commonjs.module.provider
