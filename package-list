@@ -1,17 +1,12 @@
-com.jtattoo.plaf
-com.jtattoo.plaf.acryl
-com.jtattoo.plaf.aero
-com.jtattoo.plaf.aluminium
-com.jtattoo.plaf.bernstein
-com.jtattoo.plaf.fast
-com.jtattoo.plaf.graphite
-com.jtattoo.plaf.hifi
-com.jtattoo.plaf.luna
-com.jtattoo.plaf.mcwin
-com.jtattoo.plaf.mint
-com.jtattoo.plaf.noire
-com.jtattoo.plaf.smart
-com.jtattoo.plaf.texture
+com.izforge.izpack.panels
+com.steadystate.css.dom
+com.steadystate.css.format
+com.steadystate.css.parser
+com.steadystate.css.parser.media
+com.steadystate.css.parser.selectors
+com.steadystate.css.sac
+com.steadystate.css.userdata
+com.steadystate.css.util
 org.lobobrowser.async
 org.lobobrowser.clientlet
 org.lobobrowser.context
@@ -28,24 +23,14 @@ org.lobobrowser.html.io
 org.lobobrowser.html.js
 org.lobobrowser.html.js.xml
 org.lobobrowser.html.jsimpl
-org.lobobrowser.html.jstest
 org.lobobrowser.html.layout
 org.lobobrowser.html.parser
 org.lobobrowser.html.renderer
 org.lobobrowser.html.renderstate
 org.lobobrowser.html.style
-<<<<<<< .mine
 org.lobobrowser.html.style.selectors
 org.lobobrowser.html.test
 org.lobobrowser.html.xpath
-||||||| .r325
-org.lobobrowser.html.test
-org.lobobrowser.html.w3c
-org.lobobrowser.html.w3c.events
-=======
-org.lobobrowser.html.style.selectors
-org.lobobrowser.html.xpath
->>>>>>> .r521
 org.lobobrowser.http
 org.lobobrowser.io
 org.lobobrowser.js
@@ -77,7 +62,6 @@ org.lobobrowser.ua
 org.lobobrowser.util
 org.lobobrowser.util.gui
 org.lobobrowser.util.io
-<<<<<<< .mine
 org.lobobrowser.w3c
 org.lobobrowser.w3c.events
 org.lobobrowser.w3c.file
@@ -104,32 +88,3 @@ org.mozilla.javascript.v8dtoa
 org.mozilla.javascript.xml
 org.w3c.css.sac
 org.w3c.css.sac.helpers
-||||||| .r325
-org.mozilla.classfile
-org.mozilla.javascript
-org.mozilla.javascript.annotations
-org.mozilla.javascript.ast
-org.mozilla.javascript.commonjs.module
-org.mozilla.javascript.commonjs.module.provider
-org.mozilla.javascript.debug
-org.mozilla.javascript.jdk13
-org.mozilla.javascript.jdk15
-org.mozilla.javascript.json
-org.mozilla.javascript.optimizer
-org.mozilla.javascript.regexp
-org.mozilla.javascript.serialize
-org.mozilla.javascript.typedarrays
-org.mozilla.javascript.v8dtoa
-org.mozilla.javascript.xml
-org.w3c.css.sac
-org.w3c.css.sac.helpers
-=======
-org.lobobrowser.w3c
-org.lobobrowser.w3c.events
-org.lobobrowser.w3c.file
-org.lobobrowser.w3c.html
-org.lobobrowser.w3c.typedarray
-org.lobobrowser.w3c.xpath
-org.lobobrowser.xpath
-org.lobobrowser.xpath.function
->>>>>>> .r521
