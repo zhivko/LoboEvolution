@@ -187,7 +187,13 @@ public class StyleSheetAggregator {
 								prevSelector.setSelectorType(SelectorMatcher.PRECEEDING_SIBLING);
 							}
 							continue;
+						} else if ("~".equals(token)) {
+							if (prevSelector != null) {
+								prevSelector.setSelectorType(SelectorMatcher.NEXT_SIBLING);
+							}
+							continue;
 						}
+						
 						int colonIdx = token.indexOf(':');
 						String selectorText = colonIdx == -1 ? token : token.substring(0, colonIdx);
 						pseudoElement = colonIdx == -1 ? null : token.substring(colonIdx + 1);

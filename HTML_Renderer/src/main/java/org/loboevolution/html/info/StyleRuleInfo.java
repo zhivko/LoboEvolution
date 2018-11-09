@@ -27,6 +27,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.loboevolution.html.domimpl.HTMLElementImpl;
+import org.loboevolution.html.style.selectors.AncestorSelector;
+import org.loboevolution.html.style.selectors.NextSelector;
+import org.loboevolution.html.style.selectors.ParentSelector;
+import org.loboevolution.html.style.selectors.PrecedingSelector;
 import org.loboevolution.html.style.selectors.SelectorMatcher;
 import org.loboevolution.util.Objects;
 import org.w3c.dom.css.CSSStyleRule;
@@ -91,16 +95,19 @@ public class StyleRuleInfo implements Serializable {
 			if (dotIdx != -1) {
 				String elemtl = selectorText.substring(0, dotIdx);
 				String classtl = selectorText.substring(dotIdx + 1);
-				newElement = currentElement.getAncestorWithClass(elemtl, classtl);
+				AncestorSelector ancestorSelecto = new AncestorSelector(currentElement);
+				newElement = ancestorSelecto.getAncestorWithClass(elemtl, classtl);
 			} else {
 				int poundIdx = selectorText.indexOf('#');
 				if (poundIdx != -1) {
 					String elemtl = selectorText.substring(0, poundIdx);
 					String idtl = selectorText.substring(poundIdx + 1);
-					newElement = currentElement.getAncestorWithId(elemtl, idtl);
+					AncestorSelector ancestorSelecto = new AncestorSelector(currentElement);
+					newElement = ancestorSelecto.getAncestorWithId(elemtl, idtl);
 				} else {
 					String elemtl = selectorText;
-					newElement = currentElement.getAncestor(elemtl);
+					AncestorSelector ancestorSelecto = new AncestorSelector(currentElement);
+					newElement = ancestorSelecto.getAncestor(elemtl);
 				}
 			}
 			if (newElement == null) {
@@ -142,7 +149,7 @@ public class StyleRuleInfo implements Serializable {
 			String selectorText = selectorMatcher.getSimpleSelectorText();
 			int dotIdx = selectorText.indexOf('.');
 			int selectorType = selectorMatcher.getSelectorType();
-			HTMLElementImpl priorElement;
+			HTMLElementImpl priorElement = null;
 			
 			if (dotIdx != -1) {
 				String elemtl = getElement(selectorText.substring(0, dotIdx)); 
@@ -150,13 +157,20 @@ public class StyleRuleInfo implements Serializable {
 				
 				switch (selectorType) {
 				case SelectorMatcher.ANCESTOR:
-					priorElement = currentElement.getAncestorWithClass(elemtl, classtl);
+					AncestorSelector ancestor = new AncestorSelector(currentElement);
+					priorElement = ancestor.getAncestorWithClass(elemtl, classtl);
 					break;
 				case SelectorMatcher.PARENT:
-					priorElement = currentElement.getParentWithClass(elemtl, classtl);
+					ParentSelector parent = new ParentSelector(currentElement);
+					priorElement = parent.getParentWithClass(elemtl, classtl);
 					break;
 				case SelectorMatcher.PRECEEDING_SIBLING:
-					priorElement = currentElement.getPreceedingSiblingWithClass(elemtl, classtl);
+					PrecedingSelector preceding = new PrecedingSelector(currentElement);
+					priorElement = preceding.getPrecedingSiblingWithClass(elemtl, classtl);
+					break;
+				case SelectorMatcher.NEXT_SIBLING:
+					NextSelector next = new NextSelector(currentElement);
+					priorElement = next.getNextWithClass(elemtl, classtl);
 					break;
 				default:
 					throw new IllegalStateException("selectorType=" + selectorType);
@@ -170,13 +184,20 @@ public class StyleRuleInfo implements Serializable {
 					
 					switch (selectorType) {
 					case SelectorMatcher.ANCESTOR:
-						priorElement = currentElement.getAncestorWithId(elemtl, idtl);
+						AncestorSelector ancestor = new AncestorSelector(currentElement);
+						priorElement = ancestor.getAncestorWithId(elemtl, idtl);
 						break;
 					case SelectorMatcher.PARENT:
-						priorElement = currentElement.getParentWithId(elemtl, idtl);
+						ParentSelector parent = new ParentSelector(currentElement);
+						priorElement = parent.getParentWithId(elemtl, idtl);
 						break;
 					case SelectorMatcher.PRECEEDING_SIBLING:
-						priorElement = currentElement.getPreceedingSiblingWithId(elemtl, idtl);
+						PrecedingSelector preceding = new PrecedingSelector(currentElement);
+						priorElement = preceding.getPrecedingSiblingWithId(elemtl, idtl);
+						break;
+					case SelectorMatcher.NEXT_SIBLING:
+						NextSelector next = new NextSelector(currentElement);
+						priorElement = next.getNextWithId(elemtl, idtl);
 						break;
 					default:
 						throw new IllegalStateException("selectorType=" + selectorType);
@@ -184,16 +205,22 @@ public class StyleRuleInfo implements Serializable {
 
 				} else {
 					String elemtl = getElement(selectorText);
-										
 					switch (selectorType) {
 					case SelectorMatcher.ANCESTOR:
-						priorElement = currentElement.getAncestor(elemtl);
+						AncestorSelector ancestor = new AncestorSelector(currentElement);
+						priorElement = ancestor.getAncestor(elemtl);
 						break;
 					case SelectorMatcher.PARENT:
-						priorElement = currentElement.getParent(elemtl);
+						ParentSelector parent = new ParentSelector(currentElement);
+						priorElement = parent.getParent(elemtl);
 						break;
 					case SelectorMatcher.PRECEEDING_SIBLING:
-						priorElement = currentElement.getPreceedingSibling(elemtl);
+						PrecedingSelector preceding = new PrecedingSelector(currentElement);
+						priorElement = preceding.getPrecedingSibling(elemtl);
+						break;
+					case SelectorMatcher.NEXT_SIBLING:
+						NextSelector next = new NextSelector(currentElement);
+						priorElement = next.getNext();
 						break;
 					default:
 						throw new IllegalStateException("selectorType=" + selectorType);

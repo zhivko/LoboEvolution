@@ -23,6 +23,7 @@ package org.loboevolution.html.style.selectors;
 import java.util.Set;
 
 import org.loboevolution.html.domimpl.HTMLElementImpl;
+import org.loboevolution.util.Strings;
 
 /**
  * The Class SelectorMatcher.
@@ -58,6 +59,9 @@ public class SelectorMatcher {
 
 	/** The Constant PRECEEDING_SIBLING. */
 	public static final int PRECEEDING_SIBLING = 2;
+	
+	/** The Constant NEXT_SIBLING. */
+	public static final int  NEXT_SIBLING = 3;
 
 	/** The simple selector text. */
 	private String simpleSelectorText;
@@ -158,6 +162,27 @@ public class SelectorMatcher {
         }
         return OP_ALL;
     }
+	
+	/**
+	 * Class match.
+	 *
+	 * @param classTL
+	 *            the class tl
+	 * @return true, if successful
+	 */
+	public boolean classMatch(String classTL, HTMLElementImpl element) {
+		String classNames = element.getClassName();
+		if (Strings.isBlank(classNames)) {
+			return classTL == null;
+		}
+		String[] toks = Strings.split(classNames);
+		for (String token : toks) {
+			if (token.equalsIgnoreCase(classTL)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * Gets the selector type.
