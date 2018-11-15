@@ -20,10 +20,10 @@
  */
 package org.loboevolution.html.js.event;
 
-import org.loboevolution.html.domimpl.DOMNodeImpl;
+import org.loboevolution.js.AbstractScriptableDelegate;
 import org.mozilla.javascript.Function;
 
-public abstract class FunctionImpl extends DOMNodeImpl {
+public class FunctionImpl extends AbstractScriptableDelegate {
 
 	/** The onclick. */
 	private Function onclick;
@@ -189,34 +189,187 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 
 	/** The onratechange. */
 	private Function onratechange;
-	
+
 	/** The onload handler. */
 	private Function onloadHandler;
-	
+
+	/** The . */
+	private Function onafterprint;
+
+	/** The . */
+	private Function onbeforeprint;
+
+	/** The onbeforeunload. */
+	private Function onbeforeunload;
+
+	/** The onhashchange. */
+	private Function onhashchange;
+
+	/** The onmessage. */
+	private Function onmessage;
+
+	/** The onoffline. */
+	private Function onoffline;
+
+	/** The ononline. */
+	private Function ononline;
+
+	/** The onpagehide. */
+	private Function onpagehide;
+
+	/** The onpageshow. */
+	private Function onpageshow;
+
+	/** The onpopstate. */
+	private Function onpopstate;
+
+	/** The onredo. */
+	private Function onredo;
+
+	/** The onresize. */
+	private Function onresize;
+
+	/** The onstorage. */
+	private Function onstorage;
+
+	/** The onundo. */
+	private Function onundo;
+
+	/** The onbounce. */
+	private Function onbounce;
+
+	/** The onfinish. */
+	private Function onfinish;
+
+	/** The onstart. */
+	private Function onstart;
+
+	/** The onenter. */
+	private Function onenter;
+
+	/** The onexit. */
+	private Function onexit;
+
+	/** The onchecking. */
+	private Function onchecking;
+
+	/** The onnoupdate. */
+	private Function onnoupdate;
+
+	/** The ondownloading. */
+	private Function ondownloading;
+
+	/** The onupdateready. */
+	private Function onupdateready;
+
+	/** The oncached. */
+	private Function oncached;
+
+	/** The onobsolete. */
+	private Function onobsolete;
+
+	/** The onloadend. */
+	private Function onloadend;
+
 	/**
-	 * Gets the onclick.
-	 *
 	 * @return the onclick
 	 */
-	
 	public Function getOnclick() {
 		return onclick;
 	}
 
 	/**
-	 * Sets the onclick.
-	 *
-	 * @param onclick
-	 *            the new onclick
+	 * @param onclick the onclick to set
 	 */
-	
 	public void setOnclick(Function onclick) {
 		this.onclick = onclick;
 	}
 
 	/**
-	 * Gets the onunload.
-	 *
+	 * @return the ondblclick
+	 */
+	public Function getOndblclick() {
+		return ondblclick;
+	}
+
+	/**
+	 * @param ondblclick the ondblclick to set
+	 */
+	public void setOndblclick(Function ondblclick) {
+		this.ondblclick = ondblclick;
+	}
+
+	/**
+	 * @return the onkeydown
+	 */
+	public Function getOnkeydown() {
+		return onkeydown;
+	}
+
+	/**
+	 * @param onkeydown the onkeydown to set
+	 */
+	public void setOnkeydown(Function onkeydown) {
+		this.onkeydown = onkeydown;
+	}
+
+	/**
+	 * @return the onkeypress
+	 */
+	public Function getOnkeypress() {
+		return onkeypress;
+	}
+
+	/**
+	 * @param onkeypress the onkeypress to set
+	 */
+	public void setOnkeypress(Function onkeypress) {
+		this.onkeypress = onkeypress;
+	}
+
+	/**
+	 * @return the onkeyup
+	 */
+	public Function getOnkeyup() {
+		return onkeyup;
+	}
+
+	/**
+	 * @param onkeyup the onkeyup to set
+	 */
+	public void setOnkeyup(Function onkeyup) {
+		this.onkeyup = onkeyup;
+	}
+
+	/**
+	 * @return the onmousedown
+	 */
+	public Function getOnmousedown() {
+		return onmousedown;
+	}
+
+	/**
+	 * @param onmousedown the onmousedown to set
+	 */
+	public void setOnmousedown(Function onmousedown) {
+		this.onmousedown = onmousedown;
+	}
+
+	/**
+	 * @return the onmouseup
+	 */
+	public Function getOnmouseup() {
+		return onmouseup;
+	}
+
+	/**
+	 * @param onmouseup the onmouseup to set
+	 */
+	public void setOnmouseup(Function onmouseup) {
+		this.onmouseup = onmouseup;
+	}
+
+	/**
 	 * @return the onunload
 	 */
 	public Function getOnunload() {
@@ -224,154 +377,22 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	}
 
 	/**
-	 * Sets the onunload.
-	 *
-	 * @param onunload
-	 *            the new onunload
+	 * @param onunload the onunload to set
 	 */
 	public void setOnunload(Function onunload) {
 		this.onunload = onunload;
 	}
 
 	/**
-	 * Gets the onmousedown.
-	 *
-	 * @return the onmousedown
-	 */
-	
-	public Function getOnmousedown() {
-		return onmousedown;
-	}
-
-	/**
-	 * Sets the onmousedown.
-	 *
-	 * @param onmousedown
-	 *            the new onmousedown
-	 */
-	
-	public void setOnmousedown(Function onmousedown) {
-		this.onmousedown = onmousedown;
-	}
-
-	/**
-	 * Gets the onkeypress.
-	 *
-	 * @return the onkeypress
-	 */
-	
-	public Function getOnkeypress() {
-		return onkeypress;
-	}
-
-	/**
-	 * Sets the onkeypress.
-	 *
-	 * @param onkeypress
-	 *            the new onkeypress
-	 */
-	
-	public void setOnkeypress(Function onkeypress) {
-		this.onkeypress = onkeypress;
-	}
-
-	/**
-	 * Gets the onkeydown.
-	 *
-	 * @return the onkeydown
-	 */
-	
-	public Function getOnkeydown() {
-		return onkeydown;
-	}
-
-	/**
-	 * Sets the onkeydown.
-	 *
-	 * @param onkeydown
-	 *            the new onkeydown
-	 */
-	
-	public void setOnkeydown(Function onkeydown) {
-		this.onkeydown = onkeydown;
-	}
-
-	/**
-	 * Gets the onmouseup.
-	 *
-	 * @return the onmouseup
-	 */
-	
-	public Function getOnmouseup() {
-		return onmouseup;
-	}
-
-	/**
-	 * Sets the onmouseup.
-	 *
-	 * @param onmouseup
-	 *            the new onmouseup
-	 */
-	
-	public void setOnmouseup(Function onmouseup) {
-		this.onmouseup = onmouseup;
-	}
-
-	/**
-	 * Gets the ondblclick.
-	 *
-	 * @return the ondblclick
-	 */
-	
-	public Function getOndblclick() {
-		return ondblclick;
-	}
-
-	/**
-	 * Sets the ondblclick.
-	 *
-	 * @param ondblclick
-	 *            the new ondblclick
-	 */
-	
-	public void setOndblclick(Function ondblclick) {
-		this.ondblclick = ondblclick;
-	}
-
-	/**
-	 * Gets the onkeyup.
-	 *
-	 * @return the onkeyup
-	 */
-	
-	public Function getOnkeyup() {
-		return onkeyup;
-	}
-
-	/**
-	 * Sets the onkeyup.
-	 *
-	 * @param onkeyup
-	 *            the new onkeyup
-	 */
-	
-	public void setOnkeyup(Function onkeyup) {
-		this.onkeyup = onkeyup;
-	}
-
-	/**
 	 * @return the onmouseout
 	 */
-	
 	public Function getOnmouseout() {
 		return onmouseout;
 	}
 
 	/**
-	 * @param onmouseout
-	 *            the onmouseout to set
+	 * @param onmouseout the onmouseout to set
 	 */
-	
 	public void setOnmouseout(Function onmouseout) {
 		this.onmouseout = onmouseout;
 	}
@@ -379,16 +400,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onmouseover
 	 */
-	
 	public Function getOnmouseover() {
 		return onmouseover;
 	}
 
 	/**
-	 * @param onmouseover
-	 *            the onmouseover to set
+	 * @param onmouseover the onmouseover to set
 	 */
-	
 	public void setOnmouseover(Function onmouseover) {
 		this.onmouseover = onmouseover;
 	}
@@ -396,16 +414,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the oncanplay
 	 */
-	
 	public Function getOncanplay() {
 		return oncanplay;
 	}
 
 	/**
-	 * @param oncanplay
-	 *            the oncanplay to set
+	 * @param oncanplay the oncanplay to set
 	 */
-	
 	public void setOncanplay(Function oncanplay) {
 		this.oncanplay = oncanplay;
 	}
@@ -413,16 +428,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onabort
 	 */
-	
 	public Function getOnabort() {
 		return onabort;
 	}
 
 	/**
-	 * @param onabort
-	 *            the onabort to set
+	 * @param onabort the onabort to set
 	 */
-	
 	public void setOnabort(Function onabort) {
 		this.onabort = onabort;
 	}
@@ -430,16 +442,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onblur
 	 */
-	
 	public Function getOnblur() {
 		return onblur;
 	}
 
 	/**
-	 * @param onblur
-	 *            the onblur to set
+	 * @param onblur the onblur to set
 	 */
-	
 	public void setOnblur(Function onblur) {
 		this.onblur = onblur;
 	}
@@ -447,16 +456,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the oncanplaythrough
 	 */
-	
 	public Function getOncanplaythrough() {
 		return oncanplaythrough;
 	}
 
 	/**
-	 * @param oncanplaythrough
-	 *            the oncanplaythrough to set
+	 * @param oncanplaythrough the oncanplaythrough to set
 	 */
-	
 	public void setOncanplaythrough(Function oncanplaythrough) {
 		this.oncanplaythrough = oncanplaythrough;
 	}
@@ -464,16 +470,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onchange
 	 */
-	
 	public Function getOnchange() {
 		return onchange;
 	}
 
 	/**
-	 * @param onchange
-	 *            the onchange to set
+	 * @param onchange the onchange to set
 	 */
-	
 	public void setOnchange(Function onchange) {
 		this.onchange = onchange;
 	}
@@ -481,16 +484,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the oncontextmenu
 	 */
-	
 	public Function getOncontextmenu() {
 		return oncontextmenu;
 	}
 
 	/**
-	 * @param oncontextmenu
-	 *            the oncontextmenu to set
+	 * @param oncontextmenu the oncontextmenu to set
 	 */
-	
 	public void setOncontextmenu(Function oncontextmenu) {
 		this.oncontextmenu = oncontextmenu;
 	}
@@ -498,16 +498,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the oncuechange
 	 */
-	
 	public Function getOncuechange() {
 		return oncuechange;
 	}
 
 	/**
-	 * @param oncuechange
-	 *            the oncuechange to set
+	 * @param oncuechange the oncuechange to set
 	 */
-	
 	public void setOncuechange(Function oncuechange) {
 		this.oncuechange = oncuechange;
 	}
@@ -515,16 +512,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the ondrag
 	 */
-	
 	public Function getOndrag() {
 		return ondrag;
 	}
 
 	/**
-	 * @param ondrag
-	 *            the ondrag to set
+	 * @param ondrag the ondrag to set
 	 */
-	
 	public void setOndrag(Function ondrag) {
 		this.ondrag = ondrag;
 	}
@@ -532,16 +526,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the ondragend
 	 */
-	
 	public Function getOndragend() {
 		return ondragend;
 	}
 
 	/**
-	 * @param ondragend
-	 *            the ondragend to set
+	 * @param ondragend the ondragend to set
 	 */
-	
 	public void setOndragend(Function ondragend) {
 		this.ondragend = ondragend;
 	}
@@ -549,16 +540,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the ondragenter
 	 */
-	
 	public Function getOndragenter() {
 		return ondragenter;
 	}
 
 	/**
-	 * @param ondragenter
-	 *            the ondragenter to set
+	 * @param ondragenter the ondragenter to set
 	 */
-	
 	public void setOndragenter(Function ondragenter) {
 		this.ondragenter = ondragenter;
 	}
@@ -566,16 +554,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the ondragleave
 	 */
-	
 	public Function getOndragleave() {
 		return ondragleave;
 	}
 
 	/**
-	 * @param ondragleave
-	 *            the ondragleave to set
+	 * @param ondragleave the ondragleave to set
 	 */
-	
 	public void setOndragleave(Function ondragleave) {
 		this.ondragleave = ondragleave;
 	}
@@ -583,16 +568,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the ondragover
 	 */
-	
 	public Function getOndragover() {
 		return ondragover;
 	}
 
 	/**
-	 * @param ondragover
-	 *            the ondragover to set
+	 * @param ondragover the ondragover to set
 	 */
-	
 	public void setOndragover(Function ondragover) {
 		this.ondragover = ondragover;
 	}
@@ -600,16 +582,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the ondragstart
 	 */
-	
 	public Function getOndragstart() {
 		return ondragstart;
 	}
 
 	/**
-	 * @param ondragstart
-	 *            the ondragstart to set
+	 * @param ondragstart the ondragstart to set
 	 */
-	
 	public void setOndragstart(Function ondragstart) {
 		this.ondragstart = ondragstart;
 	}
@@ -617,16 +596,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the ondrop
 	 */
-	
 	public Function getOndrop() {
 		return ondrop;
 	}
 
 	/**
-	 * @param ondrop
-	 *            the ondrop to set
+	 * @param ondrop the ondrop to set
 	 */
-	
 	public void setOndrop(Function ondrop) {
 		this.ondrop = ondrop;
 	}
@@ -634,16 +610,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the ondurationchange
 	 */
-	
 	public Function getOndurationchange() {
 		return ondurationchange;
 	}
 
 	/**
-	 * @param ondurationchange
-	 *            the ondurationchange to set
+	 * @param ondurationchange the ondurationchange to set
 	 */
-	
 	public void setOndurationchange(Function ondurationchange) {
 		this.ondurationchange = ondurationchange;
 	}
@@ -651,16 +624,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onemptied
 	 */
-	
 	public Function getOnemptied() {
 		return onemptied;
 	}
 
 	/**
-	 * @param onemptied
-	 *            the onemptied to set
+	 * @param onemptied the onemptied to set
 	 */
-	
 	public void setOnemptied(Function onemptied) {
 		this.onemptied = onemptied;
 	}
@@ -668,16 +638,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onended
 	 */
-	
 	public Function getOnended() {
 		return onended;
 	}
 
 	/**
-	 * @param onended
-	 *            the onended to set
+	 * @param onended the onended to set
 	 */
-	
 	public void setOnended(Function onended) {
 		this.onended = onended;
 	}
@@ -685,16 +652,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onerror
 	 */
-	
 	public Function getOnerror() {
 		return onerror;
 	}
 
 	/**
-	 * @param onerror
-	 *            the onerror to set
+	 * @param onerror the onerror to set
 	 */
-	
 	public void setOnerror(Function onerror) {
 		this.onerror = onerror;
 	}
@@ -702,16 +666,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onfocus
 	 */
-	
 	public Function getOnfocus() {
 		return onfocus;
 	}
 
 	/**
-	 * @param onfocus
-	 *            the onfocus to set
+	 * @param onfocus the onfocus to set
 	 */
-	
 	public void setOnfocus(Function onfocus) {
 		this.onfocus = onfocus;
 	}
@@ -719,16 +680,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the oninput
 	 */
-	
 	public Function getOninput() {
 		return oninput;
 	}
 
 	/**
-	 * @param oninput
-	 *            the oninput to set
+	 * @param oninput the oninput to set
 	 */
-	
 	public void setOninput(Function oninput) {
 		this.oninput = oninput;
 	}
@@ -736,16 +694,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the oninvalid
 	 */
-	
 	public Function getOninvalid() {
 		return oninvalid;
 	}
 
 	/**
-	 * @param oninvalid
-	 *            the oninvalid to set
+	 * @param oninvalid the oninvalid to set
 	 */
-	
 	public void setOninvalid(Function oninvalid) {
 		this.oninvalid = oninvalid;
 	}
@@ -753,16 +708,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onload
 	 */
-	
 	public Function getOnload() {
 		return onload;
 	}
 
 	/**
-	 * @param onload
-	 *            the onload to set
+	 * @param onload the onload to set
 	 */
-	
 	public void setOnload(Function onload) {
 		this.onload = onload;
 	}
@@ -770,16 +722,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onloadeddata
 	 */
-	
 	public Function getOnloadeddata() {
 		return onloadeddata;
 	}
 
 	/**
-	 * @param onloadeddata
-	 *            the onloadeddata to set
+	 * @param onloadeddata the onloadeddata to set
 	 */
-	
 	public void setOnloadeddata(Function onloadeddata) {
 		this.onloadeddata = onloadeddata;
 	}
@@ -787,16 +736,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onloadedmetadata
 	 */
-	
 	public Function getOnloadedmetadata() {
 		return onloadedmetadata;
 	}
 
 	/**
-	 * @param onloadedmetadata
-	 *            the onloadedmetadata to set
+	 * @param onloadedmetadata the onloadedmetadata to set
 	 */
-	
 	public void setOnloadedmetadata(Function onloadedmetadata) {
 		this.onloadedmetadata = onloadedmetadata;
 	}
@@ -804,16 +750,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onloadstart
 	 */
-	
 	public Function getOnloadstart() {
 		return onloadstart;
 	}
 
 	/**
-	 * @param onloadstart
-	 *            the onloadstart to set
+	 * @param onloadstart the onloadstart to set
 	 */
-	
 	public void setOnloadstart(Function onloadstart) {
 		this.onloadstart = onloadstart;
 	}
@@ -821,16 +764,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onmousewheel
 	 */
-	
 	public Function getOnmousewheel() {
 		return onmousewheel;
 	}
 
 	/**
-	 * @param onmousewheel
-	 *            the onmousewheel to set
+	 * @param onmousewheel the onmousewheel to set
 	 */
-	
 	public void setOnmousewheel(Function onmousewheel) {
 		this.onmousewheel = onmousewheel;
 	}
@@ -838,16 +778,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onpause
 	 */
-	
 	public Function getOnpause() {
 		return onpause;
 	}
 
 	/**
-	 * @param onpause
-	 *            the onpause to set
+	 * @param onpause the onpause to set
 	 */
-	
 	public void setOnpause(Function onpause) {
 		this.onpause = onpause;
 	}
@@ -855,16 +792,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onplay
 	 */
-	
 	public Function getOnplay() {
 		return onplay;
 	}
 
 	/**
-	 * @param onplay
-	 *            the onplay to set
+	 * @param onplay the onplay to set
 	 */
-	
 	public void setOnplay(Function onplay) {
 		this.onplay = onplay;
 	}
@@ -872,16 +806,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onplaying
 	 */
-	
 	public Function getOnplaying() {
 		return onplaying;
 	}
 
 	/**
-	 * @param onplaying
-	 *            the onplaying to set
+	 * @param onplaying the onplaying to set
 	 */
-	
 	public void setOnplaying(Function onplaying) {
 		this.onplaying = onplaying;
 	}
@@ -889,16 +820,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onprogress
 	 */
-	
 	public Function getOnprogress() {
 		return onprogress;
 	}
 
 	/**
-	 * @param onprogress
-	 *            the onprogress to set
+	 * @param onprogress the onprogress to set
 	 */
-	
 	public void setOnprogress(Function onprogress) {
 		this.onprogress = onprogress;
 	}
@@ -906,16 +834,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onreadystatechange
 	 */
-	
 	public Function getOnreadystatechange() {
 		return onreadystatechange;
 	}
 
 	/**
-	 * @param onreadystatechange
-	 *            the onreadystatechange to set
+	 * @param onreadystatechange the onreadystatechange to set
 	 */
-	
 	public void setOnreadystatechange(Function onreadystatechange) {
 		this.onreadystatechange = onreadystatechange;
 	}
@@ -923,16 +848,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onreset
 	 */
-	
 	public Function getOnreset() {
 		return onreset;
 	}
 
 	/**
-	 * @param onreset
-	 *            the onreset to set
+	 * @param onreset the onreset to set
 	 */
-	
 	public void setOnreset(Function onreset) {
 		this.onreset = onreset;
 	}
@@ -940,16 +862,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onscroll
 	 */
-	
 	public Function getOnscroll() {
 		return onscroll;
 	}
 
 	/**
-	 * @param onscroll
-	 *            the onscroll to set
+	 * @param onscroll the onscroll to set
 	 */
-	
 	public void setOnscroll(Function onscroll) {
 		this.onscroll = onscroll;
 	}
@@ -957,16 +876,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onseeked
 	 */
-	
 	public Function getOnseeked() {
 		return onseeked;
 	}
 
 	/**
-	 * @param onseeked
-	 *            the onseeked to set
+	 * @param onseeked the onseeked to set
 	 */
-	
 	public void setOnseeked(Function onseeked) {
 		this.onseeked = onseeked;
 	}
@@ -974,16 +890,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onseeking
 	 */
-	
 	public Function getOnseeking() {
 		return onseeking;
 	}
 
 	/**
-	 * @param onseeking
-	 *            the onseeking to set
+	 * @param onseeking the onseeking to set
 	 */
-	
 	public void setOnseeking(Function onseeking) {
 		this.onseeking = onseeking;
 	}
@@ -991,16 +904,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onselect
 	 */
-	
 	public Function getOnselect() {
 		return onselect;
 	}
 
 	/**
-	 * @param onselect
-	 *            the onselect to set
+	 * @param onselect the onselect to set
 	 */
-	
 	public void setOnselect(Function onselect) {
 		this.onselect = onselect;
 	}
@@ -1008,16 +918,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onshow
 	 */
-	
 	public Function getOnshow() {
 		return onshow;
 	}
 
 	/**
-	 * @param onshow
-	 *            the onshow to set
+	 * @param onshow the onshow to set
 	 */
-	
 	public void setOnshow(Function onshow) {
 		this.onshow = onshow;
 	}
@@ -1025,16 +932,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onstalled
 	 */
-	
 	public Function getOnstalled() {
 		return onstalled;
 	}
 
 	/**
-	 * @param onstalled
-	 *            the onstalled to set
+	 * @param onstalled the onstalled to set
 	 */
-	
 	public void setOnstalled(Function onstalled) {
 		this.onstalled = onstalled;
 	}
@@ -1042,16 +946,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onsubmit
 	 */
-	
 	public Function getOnsubmit() {
 		return onsubmit;
 	}
 
 	/**
-	 * @param onsubmit
-	 *            the onsubmit to set
+	 * @param onsubmit the onsubmit to set
 	 */
-	
 	public void setOnsubmit(Function onsubmit) {
 		this.onsubmit = onsubmit;
 	}
@@ -1059,16 +960,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onsuspend
 	 */
-	
 	public Function getOnsuspend() {
 		return onsuspend;
 	}
 
 	/**
-	 * @param onsuspend
-	 *            the onsuspend to set
+	 * @param onsuspend the onsuspend to set
 	 */
-	
 	public void setOnsuspend(Function onsuspend) {
 		this.onsuspend = onsuspend;
 	}
@@ -1076,16 +974,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the ontimeupdate
 	 */
-	
 	public Function getOntimeupdate() {
 		return ontimeupdate;
 	}
 
 	/**
-	 * @param ontimeupdate
-	 *            the ontimeupdate to set
+	 * @param ontimeupdate the ontimeupdate to set
 	 */
-	
 	public void setOntimeupdate(Function ontimeupdate) {
 		this.ontimeupdate = ontimeupdate;
 	}
@@ -1093,16 +988,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onvolumechange
 	 */
-	
 	public Function getOnvolumechange() {
 		return onvolumechange;
 	}
 
 	/**
-	 * @param onvolumechange
-	 *            the onvolumechange to set
+	 * @param onvolumechange the onvolumechange to set
 	 */
-	
 	public void setOnvolumechange(Function onvolumechange) {
 		this.onvolumechange = onvolumechange;
 	}
@@ -1110,16 +1002,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onwaiting
 	 */
-	
 	public Function getOnwaiting() {
 		return onwaiting;
 	}
 
 	/**
-	 * @param onwaiting
-	 *            the onwaiting to set
+	 * @param onwaiting the onwaiting to set
 	 */
-	
 	public void setOnwaiting(Function onwaiting) {
 		this.onwaiting = onwaiting;
 	}
@@ -1127,16 +1016,13 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onmousemove
 	 */
-	
 	public Function getOnmousemove() {
 		return onmousemove;
 	}
 
 	/**
-	 * @param onmousemove
-	 *            the onmousemove to set
+	 * @param onmousemove the onmousemove to set
 	 */
-	
 	public void setOnmousemove(Function onmousemove) {
 		this.onmousemove = onmousemove;
 	}
@@ -1144,36 +1030,393 @@ public abstract class FunctionImpl extends DOMNodeImpl {
 	/**
 	 * @return the onratechange
 	 */
-	
 	public Function getOnratechange() {
 		return onratechange;
 	}
 
 	/**
-	 * @param onratechange
-	 *            the onratechange to set
+	 * @param onratechange the onratechange to set
 	 */
-	
 	public void setOnratechange(Function onratechange) {
 		this.onratechange = onratechange;
 	}
-	
+
 	/**
-	 * Gets the onload handler.
-	 *
-	 * @return the onload handler
+	 * @return the onloadHandler
 	 */
 	public Function getOnloadHandler() {
 		return onloadHandler;
 	}
 
 	/**
-	 * Sets the onload handler.
-	 *
-	 * @param onloadHandler
-	 *            the new onload handler
+	 * @param onloadHandler the onloadHandler to set
 	 */
 	public void setOnloadHandler(Function onloadHandler) {
 		this.onloadHandler = onloadHandler;
 	}
+
+	/**
+	 * @return the onafterprint
+	 */
+	public Function getOnafterprint() {
+		return onafterprint;
+	}
+
+	/**
+	 * @param onafterprint the onafterprint to set
+	 */
+	public void setOnafterprint(Function onafterprint) {
+		this.onafterprint = onafterprint;
+	}
+
+	/**
+	 * @return the onbeforeprint
+	 */
+	public Function getOnbeforeprint() {
+		return onbeforeprint;
+	}
+
+	/**
+	 * @param onbeforeprint the onbeforeprint to set
+	 */
+	public void setOnbeforeprint(Function onbeforeprint) {
+		this.onbeforeprint = onbeforeprint;
+	}
+
+	/**
+	 * @return the onbeforeunload
+	 */
+	public Function getOnbeforeunload() {
+		return onbeforeunload;
+	}
+
+	/**
+	 * @param onbeforeunload the onbeforeunload to set
+	 */
+	public void setOnbeforeunload(Function onbeforeunload) {
+		this.onbeforeunload = onbeforeunload;
+	}
+
+	/**
+	 * @return the onhashchange
+	 */
+	public Function getOnhashchange() {
+		return onhashchange;
+	}
+
+	/**
+	 * @param onhashchange the onhashchange to set
+	 */
+	public void setOnhashchange(Function onhashchange) {
+		this.onhashchange = onhashchange;
+	}
+
+	/**
+	 * @return the onmessage
+	 */
+	public Function getOnmessage() {
+		return onmessage;
+	}
+
+	/**
+	 * @param onmessage the onmessage to set
+	 */
+	public void setOnmessage(Function onmessage) {
+		this.onmessage = onmessage;
+	}
+
+	/**
+	 * @return the onoffline
+	 */
+	public Function getOnoffline() {
+		return onoffline;
+	}
+
+	/**
+	 * @param onoffline the onoffline to set
+	 */
+	public void setOnoffline(Function onoffline) {
+		this.onoffline = onoffline;
+	}
+
+	/**
+	 * @return the ononline
+	 */
+	public Function getOnonline() {
+		return ononline;
+	}
+
+	/**
+	 * @param ononline the ononline to set
+	 */
+	public void setOnonline(Function ononline) {
+		this.ononline = ononline;
+	}
+
+	/**
+	 * @return the onpagehide
+	 */
+	public Function getOnpagehide() {
+		return onpagehide;
+	}
+
+	/**
+	 * @param onpagehide the onpagehide to set
+	 */
+	public void setOnpagehide(Function onpagehide) {
+		this.onpagehide = onpagehide;
+	}
+
+	/**
+	 * @return the onpageshow
+	 */
+	public Function getOnpageshow() {
+		return onpageshow;
+	}
+
+	/**
+	 * @param onpageshow the onpageshow to set
+	 */
+	public void setOnpageshow(Function onpageshow) {
+		this.onpageshow = onpageshow;
+	}
+
+	/**
+	 * @return the onpopstate
+	 */
+	public Function getOnpopstate() {
+		return onpopstate;
+	}
+
+	/**
+	 * @param onpopstate the onpopstate to set
+	 */
+	public void setOnpopstate(Function onpopstate) {
+		this.onpopstate = onpopstate;
+	}
+
+	/**
+	 * @return the onredo
+	 */
+	public Function getOnredo() {
+		return onredo;
+	}
+
+	/**
+	 * @param onredo the onredo to set
+	 */
+	public void setOnredo(Function onredo) {
+		this.onredo = onredo;
+	}
+
+	/**
+	 * @return the onresize
+	 */
+	public Function getOnresize() {
+		return onresize;
+	}
+
+	/**
+	 * @param onresize the onresize to set
+	 */
+	public void setOnresize(Function onresize) {
+		this.onresize = onresize;
+	}
+
+	/**
+	 * @return the onstorage
+	 */
+	public Function getOnstorage() {
+		return onstorage;
+	}
+
+	/**
+	 * @param onstorage the onstorage to set
+	 */
+	public void setOnstorage(Function onstorage) {
+		this.onstorage = onstorage;
+	}
+
+	/**
+	 * @return the onundo
+	 */
+	public Function getOnundo() {
+		return onundo;
+	}
+
+	/**
+	 * @param onundo the onundo to set
+	 */
+	public void setOnundo(Function onundo) {
+		this.onundo = onundo;
+	}
+
+	/**
+	 * @return the onbounce
+	 */
+	public Function getOnbounce() {
+		return onbounce;
+	}
+
+	/**
+	 * @param onbounce the onbounce to set
+	 */
+	public void setOnbounce(Function onbounce) {
+		this.onbounce = onbounce;
+	}
+
+	/**
+	 * @return the onfinish
+	 */
+	public Function getOnfinish() {
+		return onfinish;
+	}
+
+	/**
+	 * @param onfinish the onfinish to set
+	 */
+	public void setOnfinish(Function onfinish) {
+		this.onfinish = onfinish;
+	}
+
+	/**
+	 * @return the onstart
+	 */
+	public Function getOnstart() {
+		return onstart;
+	}
+
+	/**
+	 * @param onstart the onstart to set
+	 */
+	public void setOnstart(Function onstart) {
+		this.onstart = onstart;
+	}
+
+	/**
+	 * @return the onenter
+	 */
+	public Function getOnenter() {
+		return onenter;
+	}
+
+	/**
+	 * @param onenter the onenter to set
+	 */
+	public void setOnenter(Function onenter) {
+		this.onenter = onenter;
+	}
+
+	/**
+	 * @return the onexit
+	 */
+	public Function getOnexit() {
+		return onexit;
+	}
+
+	/**
+	 * @param onexit the onexit to set
+	 */
+	public void setOnexit(Function onexit) {
+		this.onexit = onexit;
+	}
+
+	/**
+	 * @return the onchecking
+	 */
+	public Function getOnchecking() {
+		return onchecking;
+	}
+
+	/**
+	 * @param onchecking the onchecking to set
+	 */
+	public void setOnchecking(Function onchecking) {
+		this.onchecking = onchecking;
+	}
+
+	/**
+	 * @return the onnoupdate
+	 */
+	public Function getOnnoupdate() {
+		return onnoupdate;
+	}
+
+	/**
+	 * @param onnoupdate the onnoupdate to set
+	 */
+	public void setOnnoupdate(Function onnoupdate) {
+		this.onnoupdate = onnoupdate;
+	}
+
+	/**
+	 * @return the ondownloading
+	 */
+	public Function getOndownloading() {
+		return ondownloading;
+	}
+
+	/**
+	 * @param ondownloading the ondownloading to set
+	 */
+	public void setOndownloading(Function ondownloading) {
+		this.ondownloading = ondownloading;
+	}
+
+	/**
+	 * @return the onupdateready
+	 */
+	public Function getOnupdateready() {
+		return onupdateready;
+	}
+
+	/**
+	 * @param onupdateready the onupdateready to set
+	 */
+	public void setOnupdateready(Function onupdateready) {
+		this.onupdateready = onupdateready;
+	}
+
+	/**
+	 * @return the oncached
+	 */
+	public Function getOncached() {
+		return oncached;
+	}
+
+	/**
+	 * @param oncached the oncached to set
+	 */
+	public void setOncached(Function oncached) {
+		this.oncached = oncached;
+	}
+
+	/**
+	 * @return the onobsolete
+	 */
+	public Function getOnobsolete() {
+		return onobsolete;
+	}
+
+	/**
+	 * @param onobsolete the onobsolete to set
+	 */
+	public void setOnobsolete(Function onobsolete) {
+		this.onobsolete = onobsolete;
+	}
+
+	/**
+	 * @return the onloadend
+	 */
+	public Function getOnloadend() {
+		return onloadend;
+	}
+
+	/**
+	 * @param onloadend the onloadend to set
+	 */
+	public void setOnloadend(Function onloadend) {
+		this.onloadend = onloadend;
+	}
+
 }

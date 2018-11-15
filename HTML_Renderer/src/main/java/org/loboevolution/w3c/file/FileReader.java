@@ -21,7 +21,6 @@
 
 package org.loboevolution.w3c.file;
 
-import org.mozilla.javascript.Function;
 import org.w3c.dom.events.EventTarget;
 
 /**
@@ -106,94 +105,4 @@ public interface FileReader extends EventTarget {
 	 * @return the error
 	 */
 	public FileError getError();
-
-	/**
-	 * Gets the onloadstart.
-	 *
-	 * @return the onloadstart
-	 */
-	public Function getOnloadstart();
-
-	/**
-	 * Sets the onloadstart.
-	 *
-	 * @param onloadstart
-	 *            the new onloadstart
-	 */
-	public void setOnloadstart(Function onloadstart);
-
-	/**
-	 * Gets the onprogress.
-	 *
-	 * @return the onprogress
-	 */
-	public Function getOnprogress();
-
-	/**
-	 * Sets the onprogress.
-	 *
-	 * @param onprogress
-	 *            the new onprogress
-	 */
-	public void setOnprogress(Function onprogress);
-
-	/**
-	 * Gets the onload.
-	 *
-	 * @return the onload
-	 */
-	public Function getOnload();
-
-	/**
-	 * Sets the onload.
-	 *
-	 * @param onload
-	 *            the new onload
-	 */
-	public void setOnload(Function onload);
-
-	/**
-	 * Gets the onabort.
-	 *
-	 * @return the onabort
-	 */
-	public Function getOnabort();
-
-	/**
-	 * Sets the onabort.
-	 *
-	 * @param onabort
-	 *            the new onabort
-	 */
-	public void setOnabort(Function onabort);
-
-	/**
-	 * Gets the onerror.
-	 *
-	 * @return the onerror
-	 */
-	public Function getOnerror();
-
-	/**
-	 * Sets the onerror.
-	 *
-	 * @param onerror
-	 *            the new onerror
-	 */
-	public void setOnerror(Function onerror);
-
-	/**
-	 * Gets the onloadend.
-	 *
-	 * @return the onloadend
-	 */
-	public Function getOnloadend();
-
-	/**
-	 * Sets the onloadend.
-	 *
-	 * @param onloadend
-	 *            the new onloadend
-	 */
-	public void setOnloadend(Function onloadend);
 }

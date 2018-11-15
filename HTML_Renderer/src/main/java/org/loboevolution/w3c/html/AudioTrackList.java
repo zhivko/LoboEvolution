@@ -21,8 +21,6 @@
 
 package org.loboevolution.w3c.html;
 
-import org.mozilla.javascript.Function;
-
 /**
  * The Interface AudioTrackList.
  */
@@ -33,7 +31,6 @@ public interface AudioTrackList {
 	 *
 	 * @return the length
 	 */
-	// AudioTrackList
 	public int getLength();
 
 	/**
@@ -53,19 +50,4 @@ public interface AudioTrackList {
 	 * @return the track by id
 	 */
 	public AudioTrack getTrackById(String id);
-
-	/**
-	 * Gets the onchange.
-	 *
-	 * @return the onchange
-	 */
-	public Function getOnchange();
-
-	/**
-	 * Sets the onchange.
-	 *
-	 * @param onchange
-	 *            the new onchange
-	 */
-	public void setOnchange(Function onchange);
 }

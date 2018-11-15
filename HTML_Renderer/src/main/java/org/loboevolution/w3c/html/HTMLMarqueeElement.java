@@ -195,51 +195,6 @@ public interface HTMLMarqueeElement extends HTMLElement {
 	public void setWidth(String width);
 
 	/**
-	 * Gets the onbounce.
-	 *
-	 * @return the onbounce
-	 */
-	public Function getOnbounce();
-
-	/**
-	 * Sets the onbounce.
-	 *
-	 * @param onbounce
-	 *            the new onbounce
-	 */
-	public void setOnbounce(Function onbounce);
-
-	/**
-	 * Gets the onfinish.
-	 *
-	 * @return the onfinish
-	 */
-	public Function getOnfinish();
-
-	/**
-	 * Sets the onfinish.
-	 *
-	 * @param onfinish
-	 *            the new onfinish
-	 */
-	public void setOnfinish(Function onfinish);
-
-	/**
-	 * Gets the onstart.
-	 *
-	 * @return the onstart
-	 */
-	public Function getOnstart();
-
-	/**
-	 * Sets the onstart.
-	 *
-	 * @param onstart
-	 *            the new onstart
-	 */
-	public void setOnstart(Function onstart);
-
-	/**
 	 * Start.
 	 */
 	public void start();

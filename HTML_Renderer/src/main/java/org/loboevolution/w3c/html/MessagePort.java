@@ -30,13 +30,10 @@
 
 package org.loboevolution.w3c.html;
 
-import org.mozilla.javascript.Function;
-
 /**
  * The public interface MessagePort.
  */
 public interface MessagePort {
-	// MessagePort
 	/**
 	 * Post message.
 	 *
@@ -65,18 +62,4 @@ public interface MessagePort {
 	 */
 	void close();
 
-	/**
-	 * Gets the onmessage.
-	 *
-	 * @return the onmessage
-	 */
-	Function getOnmessage();
-
-	/**
-	 * Sets the onmessage.
-	 *
-	 * @param onmessage
-	 *            the new onmessage
-	 */
-	void setOnmessage(Function onmessage);
 }

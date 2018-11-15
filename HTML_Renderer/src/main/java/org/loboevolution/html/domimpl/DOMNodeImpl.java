@@ -43,11 +43,11 @@ import org.loboevolution.html.dombl.StopVisitorException;
 import org.loboevolution.html.dombl.UINode;
 import org.loboevolution.html.domfilter.NodeFilter;
 import org.loboevolution.html.domfilter.TextFilter;
+import org.loboevolution.html.js.event.FunctionImpl;
 import org.loboevolution.html.renderstate.RenderState;
 import org.loboevolution.html.renderstate.StyleSheetRenderState;
 import org.loboevolution.http.Urls;
 import org.loboevolution.http.UserAgentContext;
-import org.loboevolution.js.AbstractScriptableDelegate;
 import org.loboevolution.util.Nodes;
 import org.loboevolution.util.Objects;
 import org.loboevolution.util.Strings;
@@ -66,7 +66,7 @@ import org.w3c.dom.UserDataHandler;
 /**
  * The Class DOMNodeImpl.
  */
-public abstract class DOMNodeImpl extends AbstractScriptableDelegate implements Node, ModelNode, HtmlAttributeProperties {
+public abstract class DOMNodeImpl extends FunctionImpl implements Node, ModelNode, HtmlAttributeProperties {
 
 	/** The Constant EMPTY_ARRAY. */
 	private static final DOMNodeImpl[] EMPTY_ARRAY = new DOMNodeImpl[0];

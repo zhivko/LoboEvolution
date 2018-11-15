@@ -21,8 +21,6 @@
 
 package org.loboevolution.w3c.html;
 
-import org.mozilla.javascript.Function;
-
 /**
  * The Interface VideoTrackList.
  */
@@ -33,7 +31,6 @@ public interface VideoTrackList {
 	 *
 	 * @return the length
 	 */
-	// VideoTrackList
 	public int getLength();
 
 	/**
@@ -54,25 +51,4 @@ public interface VideoTrackList {
 	 */
 	public VideoTrack getTrackById(String id);
 
-	/**
-	 * Gets the selected index.
-	 *
-	 * @return the selected index
-	 */
-	public int getSelectedIndex();
-
-	/**
-	 * Gets the onchange.
-	 *
-	 * @return the onchange
-	 */
-	public Function getOnchange();
-
-	/**
-	 * Sets the onchange.
-	 *
-	 * @param onchange
-	 *            the new onchange
-	 */
-	public void setOnchange(Function onchange);
 }

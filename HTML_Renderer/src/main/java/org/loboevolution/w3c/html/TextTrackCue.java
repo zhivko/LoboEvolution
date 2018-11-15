@@ -21,7 +21,6 @@
 
 package org.loboevolution.w3c.html;
 
-import org.mozilla.javascript.Function;
 import org.w3c.dom.DocumentFragment;
 
 /**
@@ -34,7 +33,6 @@ public interface TextTrackCue {
 	 *
 	 * @return the track
 	 */
-	// TextTrackCue
 	public TextTrack getTrack();
 
 	/**
@@ -121,33 +119,4 @@ public interface TextTrackCue {
 	 */
 	public DocumentFragment getCueAsHTML();
 
-	/**
-	 * Gets the onenter.
-	 *
-	 * @return the onenter
-	 */
-	public Function getOnenter();
-
-	/**
-	 * Sets the onenter.
-	 *
-	 * @param onenter
-	 *            the new onenter
-	 */
-	public void setOnenter(Function onenter);
-
-	/**
-	 * Gets the onexit.
-	 *
-	 * @return the onexit
-	 */
-	public Function getOnexit();
-
-	/**
-	 * Sets the onexit.
-	 *
-	 * @param onexit
-	 *            the new onexit
-	 */
-	public void setOnexit(Function onexit);
 }

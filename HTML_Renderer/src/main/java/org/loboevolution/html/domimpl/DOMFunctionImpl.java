@@ -38,7 +38,6 @@ import org.loboevolution.html.js.Executor;
 import org.loboevolution.html.js.event.CustomEventImpl;
 import org.loboevolution.html.js.event.EventException;
 import org.loboevolution.html.js.event.EventImpl;
-import org.loboevolution.html.js.event.FunctionImpl;
 import org.loboevolution.html.js.event.KeyboardEventImpl;
 import org.loboevolution.html.js.event.MouseEventImpl;
 import org.loboevolution.html.js.event.MutationEventImpl;
@@ -74,7 +73,7 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 import org.w3c.dom.UserDataHandler;
 
-public abstract class DOMFunctionImpl extends FunctionImpl implements HtmlJsAttributeProperties, HtmlEventProperties, HtmlProperties {
+public abstract class DOMFunctionImpl extends DOMNodeImpl implements HtmlJsAttributeProperties, HtmlEventProperties, HtmlProperties {
 	
 	private List<String> EXECUTE_CMDS = Arrays.asList(new String[] { "backColor", "bold", "contentReadOnly",
 			"copy", "createLink", "cut", "decreaseFontSize", "delete", "fontName", "fontSize", "foreColor",

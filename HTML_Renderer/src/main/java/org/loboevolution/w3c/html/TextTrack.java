@@ -21,8 +21,6 @@
 
 package org.loboevolution.w3c.html;
 
-import org.mozilla.javascript.Function;
-
 /**
  * The Interface TextTrack.
  */
@@ -78,37 +76,6 @@ public interface TextTrack {
 	public short getReadyState();
 
 	/**
-	 * Gets the onload.
-	 *
-	 * @return the onload
-	 */
-	public Function getOnload();
-
-	/**
-	 * Sets the onload.
-	 *
-	 * @param onload
-	 *            the new onload
-	 */
-	public void setOnload(Function onload);
-
-	/**
-	 * Gets the onerror.
-	 *
-	 * @return the onerror
-	 */
-	public Function getOnerror();
-
-	/**
-	 * Sets the onerror.
-	 *
-	 * @param onerror
-	 *            the new onerror
-	 */
-	public void setOnerror(Function onerror);
-
-
-	/**
 	 * Gets the mode.
 	 *
 	 * @return the mode
@@ -137,18 +104,4 @@ public interface TextTrack {
 	 */
 	public TextTrackCueList getActiveCues();
 
-	/**
-	 * Gets the oncuechange.
-	 *
-	 * @return the oncuechange
-	 */
-	public Function getOncuechange();
-
-	/**
-	 * Sets the oncuechange.
-	 *
-	 * @param oncuechange
-	 *            the new oncuechange
-	 */
-	public void setOncuechange(Function oncuechange);
 }
