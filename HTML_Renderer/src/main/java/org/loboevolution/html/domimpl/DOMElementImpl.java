@@ -668,18 +668,13 @@ public class DOMElementImpl extends DOMFunctionImpl implements Element {
 			}
 			HTMLDocumentImpl document = (HTMLDocumentImpl) this.document;
 			if (document != null) {
-				// // Do not remove old ID. Consider scenario where both
-				// // name and ID are provided in an element.
-				// if (oldId != null) {
-				// document.removeElementById(oldId);
-				// }
-				document.setElementById(value, this);
+				document.getElementById().put(value, this);
 				if (isName) {
 					String oldName = this.getAttribute(NAME);
 					if (oldName != null) {
-						document.removeNamedItem(oldName);
+						document.getElementById().remove(oldName);
 					}
-					document.setNamedItem(value, this);
+					document.getElementById().put(value, this);
 				}
 			}
 		}

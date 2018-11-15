@@ -195,7 +195,8 @@ public class HtmlContent extends AbstractComponentContent {
 	@Override
 	public List<MetaInfo> getMetaList() {
 		List<MetaInfo> infoList = new ArrayList<MetaInfo>();
-		NodeList nodeList = this.document.getElementsByTagName("meta");
+		HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+		NodeList nodeList = doc.getElementsByTagName("meta");
 		
 		if (nodeList == null) {
 			return null;
@@ -221,7 +222,8 @@ public class HtmlContent extends AbstractComponentContent {
 	@Override
 	public List<MetaInfo> getMediaList(){
 		List<MetaInfo> infoList = new ArrayList<MetaInfo>();
-		NodeList nodeList = this.document.getElementsByTagName("img");
+		HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+		NodeList nodeList = doc.getElementsByTagName("img");
 		
 		if (nodeList == null) {
 			return null;
@@ -234,7 +236,6 @@ public class HtmlContent extends AbstractComponentContent {
 				String src = element.getAttribute("src");
 				if (Strings.isNotBlank(src)) {
 					if(!Urls.isAbsolute(src)) {
-						HTMLDocumentImpl doc = (HTMLDocumentImpl)document;
 						src = doc.getFullURL(src).toString();
 					}
 					if (src.startsWith("//")) {
@@ -247,7 +248,7 @@ public class HtmlContent extends AbstractComponentContent {
 			}
 		}
 
-		nodeList = this.document.getElementsByTagName("link");
+		nodeList = doc.getElementsByTagName("link");
 		for (Node node : Nodes.iterable(nodeList)) {
 			if (node instanceof HTMLElement) {
 				MetaInfo info = new MetaInfo();
@@ -256,7 +257,6 @@ public class HtmlContent extends AbstractComponentContent {
 				String href = element.getAttribute("href");
 				if ("icon".equalsIgnoreCase(rel) && Strings.isNotBlank(href)) {
 					if(!Urls.isAbsolute(href)) {
-						HTMLDocumentImpl doc = (HTMLDocumentImpl)document;
 						href = doc.getFullURL(href).toString();
 					}
 					if (href.startsWith("//")) {
@@ -274,7 +274,8 @@ public class HtmlContent extends AbstractComponentContent {
 	@Override
 	public List<MetaInfo> getStyleList() {
 		List<MetaInfo> infoList = new ArrayList<MetaInfo>();
-		NodeList nodeList = this.document.getElementsByTagName("link");
+		HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+		NodeList nodeList = doc.getElementsByTagName("link");
 		
 		if (nodeList == null) {
 			return null;
@@ -288,7 +289,6 @@ public class HtmlContent extends AbstractComponentContent {
 				String href = element.getAttribute("href");
 				if ("stylesheet".equalsIgnoreCase(rel) && Strings.isNotBlank(href)) {
 					if(!Urls.isAbsolute(href)) {
-						HTMLDocumentImpl doc = (HTMLDocumentImpl)document;
 						href = doc.getFullURL(href).toString();
 					}
 					if (href.startsWith("//")) {
@@ -306,7 +306,8 @@ public class HtmlContent extends AbstractComponentContent {
 	@Override
 	public List<MetaInfo> getJSList() {
 		List<MetaInfo> infoList = new ArrayList<MetaInfo>();
-		NodeList nodeList = this.document.getElementsByTagName("script");
+		HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+		NodeList nodeList = doc.getElementsByTagName("script");
 		
 		if (nodeList == null) {
 			return null;
@@ -319,7 +320,6 @@ public class HtmlContent extends AbstractComponentContent {
 				String src = element.getAttribute("src");
 				if (Strings.isNotBlank(src)) {
 					if(!Urls.isAbsolute(src)) {
-						HTMLDocumentImpl doc = (HTMLDocumentImpl)document;
 						src = doc.getFullURL(src).toString();
 					}
 					if (src.startsWith("//")) {

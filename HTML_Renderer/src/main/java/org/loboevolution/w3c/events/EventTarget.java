@@ -28,7 +28,6 @@ import org.w3c.dom.DOMException;
  * The public interface EventTarget.
  */
 public interface EventTarget {
-	// EventTarget
 	/**
 	 * Adds the event listener.
 	 *

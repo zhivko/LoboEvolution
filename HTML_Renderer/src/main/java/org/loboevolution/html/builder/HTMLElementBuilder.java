@@ -24,8 +24,8 @@
 package org.loboevolution.html.builder;
 
 import org.loboevolution.html.domimpl.HTMLElementImpl;
-import org.loboevolution.w3c.html.HTMLDocument;
 import org.loboevolution.w3c.html.HTMLElement;
+import org.w3c.dom.Document;
 
 /**
  * The Class HTMLElementBuilder.
@@ -41,7 +41,7 @@ public abstract class HTMLElementBuilder {
 	 *            the name
 	 * @return the HTML element
 	 */
-	public final HTMLElement create(HTMLDocument document, String name) {
+	public final HTMLElement create(Document document, String name) {
 		HTMLElementImpl element = this.build(name);
 		element.setOwnerDocument(document);
 		return element;

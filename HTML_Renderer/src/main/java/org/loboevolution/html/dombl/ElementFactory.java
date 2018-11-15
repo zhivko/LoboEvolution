@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.loboevolution.html.HtmlMapping;
 import org.loboevolution.html.builder.HTMLElementBuilder;
+import org.loboevolution.html.domimpl.DocumentImpl;
 import org.loboevolution.html.domimpl.HTMLDocumentImpl;
 import org.loboevolution.html.domimpl.HTMLElementImpl;
 import org.loboevolution.w3c.html.HTMLElement;
@@ -72,7 +73,7 @@ public class ElementFactory {
 	 * @throws DOMException
 	 *             the DOM exception
 	 */
-	public final HTMLElement createElement(HTMLDocumentImpl document, String name) throws DOMException {
+	public final HTMLElement createElement(DocumentImpl document, String name) throws DOMException {
 		String normalName = name.toUpperCase(Locale.ENGLISH);
 		// No need to synchronize; read-only map at this point.
 		HTMLElementBuilder builder = (HTMLElementBuilder) this.builders.get(normalName);

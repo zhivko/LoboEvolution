@@ -45,7 +45,6 @@ import org.apache.logging.log4j.Logger;
 import org.loboevolution.html.HtmlRendererContext;
 import org.loboevolution.html.dombl.DescendentHTMLCollection;
 import org.loboevolution.html.dombl.DocumentNotificationListener;
-import org.loboevolution.html.dombl.ElementFactory;
 import org.loboevolution.html.dombl.ImageEvent;
 import org.loboevolution.html.dombl.ImageListener;
 import org.loboevolution.html.domfilter.AnchorFilter;
@@ -73,21 +72,13 @@ import org.loboevolution.http.ReadyState;
 import org.loboevolution.http.SSLCertificate;
 import org.loboevolution.http.Urls;
 import org.loboevolution.http.UserAgentContext;
-import org.loboevolution.util.Strings;
-import org.loboevolution.util.WeakValueHashMap;
 import org.loboevolution.util.io.EmptyReader;
-import org.loboevolution.w3c.events.DocumentEvent;
+import org.loboevolution.w3c.events.EventTarget;
 import org.loboevolution.w3c.html.HTMLCollection;
 import org.loboevolution.w3c.html.HTMLDocument;
 import org.loboevolution.w3c.html.HTMLElement;
 import org.loboevolution.w3c.html.HTMLHeadElement;
-import org.loboevolution.w3c.xpath.XPathEvaluator;
-import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.DocumentType;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.css.CSSStyleSheet;
 import org.w3c.dom.stylesheets.StyleSheetList;
@@ -100,28 +91,13 @@ import com.gargoylesoftware.css.dom.CSSStyleSheetListImpl;
 /**
  * The Class HTMLDocumentImpl.
  */
-public class HTMLDocumentImpl extends DOMFunctionImpl implements HTMLDocument, DocumentView, DocumentEvent, XPathEvaluator {
+public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, DocumentView, EventTarget{
 
 	/** The Constant logger. */
 	private static final Logger logger = LogManager.getLogger(HTMLDocumentImpl.class);
 
-	/** The factory. */
-	private final ElementFactory factory;
-
-	/** The rcontext. */
-	private final HtmlRendererContext rcontext;
-
-	/** The ucontext. */
-	private final UserAgentContext ucontext;
-
 	/** The window. */
 	private final Window window;
-
-	/** The elements by id. */
-	private final Map<Object, Object> elementsById = new WeakValueHashMap();
-
-	/** The elements by name. */
-	private final Map<String, Element> elementsByName = new HashMap<String, Element>(0);
 
 	/** The style sheets. */
 	private final CSSStyleSheetListImpl styleSheets = new CSSStyleSheetListImpl();
@@ -137,12 +113,6 @@ public class HTMLDocumentImpl extends DOMFunctionImpl implements HTMLDocument, D
 
 	/** The document url. */
 	private URL documentURL;
-
-	/** The reader. */
-	private WritableLineReader reader;
-
-	/** The doctype. */
-	private DocumentType doctype;
 
 	/** The body. */
 	private HTMLElement body;
@@ -180,12 +150,6 @@ public class HTMLDocumentImpl extends DOMFunctionImpl implements HTMLDocument, D
 	/** The style sheet aggregator. */
 	private StyleSheetAggregator styleSheetAggregator = null;
 
-	/** The dom config. */
-	private DOMConfiguration domConfig;
-
-	/** The dom implementation. */
-	private DOMImplementation domImplementation;
-
 	/** The locales. */
 	private Set<?> locales;
 
@@ -197,31 +161,12 @@ public class HTMLDocumentImpl extends DOMFunctionImpl implements HTMLDocument, D
 
 	/** The title. */
 	private String title;
-
-	/** The document uri. */
-	private String documentURI;
-
 	/** The referrer. */
 	private String referrer;
 
 	/** The domain. */
 	private String domain;
 
-	/** The input encoding. */
-	private String inputEncoding;
-
-	/** The xml encoding. */
-	private String xmlEncoding;
-
-	/** The xml version. */
-	private String xmlVersion = null;
-
-	/** The xml standalone. */
-	private boolean xmlStandalone;
-
-	/** The strict error checking. */
-	private boolean strictErrorChecking = true;
-	
 	/**
 	 * Instantiates a new HTML document impl.
 	 *
@@ -256,11 +201,10 @@ public class HTMLDocumentImpl extends DOMFunctionImpl implements HTMLDocument, D
 	 */
 	public HTMLDocumentImpl(final UserAgentContext ucontext, final HtmlRendererContext rcontext,
 			WritableLineReader reader, String documentURI) {
-		this.factory = ElementFactory.getInstance();
 		this.rcontext = rcontext;
 		this.ucontext = ucontext;
 		this.reader = reader;
-		this.documentURI = documentURI;
+		this.setDocumentURI(documentURI);
 
 		if (documentURI != null) {
 			try {
@@ -500,126 +444,7 @@ public class HTMLDocumentImpl extends DOMFunctionImpl implements HTMLDocument, D
 	public NodeList getElementsByName(String elementName) {
 		return this.getNodeList(new ElementNameFilter(elementName));
 	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.w3c.dom.Document#getDocumentElement()
-	 */
-	@Override
-	public Element getDocumentElement() {
-		synchronized (this.getTreeLock()) {
-			ArrayList<?> nl = this.nodeList;
-			if (nl != null) {
-				Iterator<?> i = nl.iterator();
-				while (i.hasNext()) {
-					Object node = i.next();
-					if (node instanceof Element) {
-						return (Element) node;
-					}
-				}
-			}
-			return null;
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.w3c.dom.Document#createElement(java.lang.String)
-	 */
-	@Override
-	public Element createElement(String tagName) throws DOMException {
-		return this.factory.createElement(this, tagName);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.w3c.dom.Document#getElementById(java.lang.String)
-	 */
-	@Override
-	public Element getElementById(String elementId) {
-		if (Strings.isNotBlank(elementId)) {
-			synchronized (this) {
-				return (Element) this.elementsById.get(elementId);
-			}
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Named item.
-	 *
-	 * @param name
-	 *            the name
-	 * @return the element
-	 */
-	public Element namedItem(String name) {
-		Element element;
-		synchronized (this) {
-			element = this.elementsByName.get(name);
-		}
-		return element;
-	}
-
-	/**
-	 * Sets the named item.
-	 *
-	 * @param name
-	 *            the name
-	 * @param element
-	 *            the element
-	 */
-	public void setNamedItem(String name, Element element) {
-		synchronized (this) {
-			this.elementsByName.put(name, element);
-		}
-	}
-
-	/**
-	 * Removes the named item.
-	 *
-	 * @param name
-	 *            the name
-	 */
-	public void removeNamedItem(String name) {
-		synchronized (this) {
-			this.elementsByName.remove(name);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.w3c.dom.Document#getDomConfig()
-	 */
-	@Override
-	public DOMConfiguration getDomConfig() {
-		synchronized (this) {
-			if (this.domConfig == null) {
-				this.domConfig = new DOMConfigurationImpl();
-			}
-			return this.domConfig;
-		}
-	}
 	
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.w3c.dom.Document#getImplementation()
-	 */
-	@Override
-	public DOMImplementation getImplementation() {
-		synchronized (this) {
-			if (this.domImplementation == null) {
-				this.domImplementation = new DOMImplementationImpl(this.ucontext);
-			}
-			return this.domImplementation;
-		}
-	}
-
 	/*
 	 * (non-Javadoc)
 	 *
@@ -676,21 +501,11 @@ public class HTMLDocumentImpl extends DOMFunctionImpl implements HTMLDocument, D
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.loboevolution.w3c.html.HTMLDocument#setLocation(java.lang.String)
-	 */
-	@Override
-	public void setLocation(String location) {
-		this.getLocation().setHref(location);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
 	 * @see org.loboevolution.w3c.html.HTMLDocument#getURL()
 	 */
 	@Override
 	public String getURL() {
-		return this.documentURI;
+		return this.getDocumentURI();
 	}
 
 	/**
@@ -984,17 +799,6 @@ public class HTMLDocumentImpl extends DOMFunctionImpl implements HTMLDocument, D
 		}
 	}
 	
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.loboevolution.html.domimpl.DOMNodeImpl#createSimilarNode()
-	 */
-	@Override
-	protected Node createSimilarNode() {
-		return new HTMLDocumentImpl(this.ucontext, this.rcontext, this.reader, this.documentURI);
-	}
-
 	/**
 	 * The Class LocalWritableLineReader.
 	 */
@@ -1195,117 +999,7 @@ public class HTMLDocumentImpl extends DOMFunctionImpl implements HTMLDocument, D
 			return this.anchors;
 		}
 	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.w3c.dom.Document#getDoctype()
-	 */
-	@Override
-	public DocumentType getDoctype() {
-		return this.doctype;
-	}
-
-	/**
-	 * Sets the doctype.
-	 *
-	 * @param doctype
-	 *            the new doctype
-	 */
-	public void setDoctype(DocumentType doctype) {
-		this.doctype = doctype;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.w3c.dom.Document#getInputEncoding()
-	 */
-	@Override
-	public String getInputEncoding() {
-		return this.inputEncoding;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.w3c.dom.Document#getXmlEncoding()
-	 */
-	@Override
-	public String getXmlEncoding() {
-		return this.xmlEncoding;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.w3c.dom.Document#getXmlStandalone()
-	 */
-	@Override
-	public boolean getXmlStandalone() {
-		return this.xmlStandalone;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.w3c.dom.Document#setXmlStandalone(boolean)
-	 */
-	@Override
-	public void setXmlStandalone(boolean xmlStandalone) throws DOMException {
-		this.xmlStandalone = xmlStandalone;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.w3c.dom.Document#getXmlVersion()
-	 */
-	@Override
-	public String getXmlVersion() {
-		return this.xmlVersion;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.w3c.dom.Document#setXmlVersion(java.lang.String)
-	 */
-	@Override
-	public void setXmlVersion(String xmlVersion) throws DOMException {
-		this.xmlVersion = xmlVersion;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.w3c.dom.Document#getStrictErrorChecking()
-	 */
-	@Override
-	public boolean getStrictErrorChecking() {
-		return this.strictErrorChecking;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.w3c.dom.Document#setStrictErrorChecking(boolean)
-	 */
-	@Override
-	public void setStrictErrorChecking(boolean strictErrorChecking) {
-		this.strictErrorChecking = strictErrorChecking;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.w3c.dom.Document#getDocumentURI()
-	 */
-	@Override
-	public String getDocumentURI() {
-		return this.documentURI;
-	}
-
+	
 	/**
 	 * Gets the locales.
 	 *
@@ -1333,7 +1027,7 @@ public class HTMLDocumentImpl extends DOMFunctionImpl implements HTMLDocument, D
 	@Override
 	public String getBaseURI() {
 		String buri = this.baseURI;
-		return buri == null ? this.documentURI : buri;
+		return buri == null ? this.getDocumentURI() : buri;
 	}
 
 	/**
@@ -1405,42 +1099,6 @@ public class HTMLDocumentImpl extends DOMFunctionImpl implements HTMLDocument, D
 		return this.documentURL;
 	}
 
-	/**
-	 * Caller should synchronize on document.
-	 *
-	 * @param id
-	 *            the id
-	 * @param element
-	 *            the element
-	 */
-	public void setElementById(String id, Element element) {
-		synchronized (this) {
-			this.elementsById.put(id, element);
-		}
-	}
-
-	/**
-	 * Removes the element by id.
-	 *
-	 * @param id
-	 *            the id
-	 */
-	public void removeElementById(String id) {
-		synchronized (this) {
-			this.elementsById.remove(id);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.w3c.dom.Document#setDocumentURI(java.lang.String)
-	 */
-	@Override
-	public void setDocumentURI(String documentURI) {
-		this.documentURI = documentURI;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 *
@@ -1452,7 +1110,7 @@ public class HTMLDocumentImpl extends DOMFunctionImpl implements HTMLDocument, D
 		String result = "";
 		try {
 			SSLCertificate.setCertificate();
-			URL docURL = new URL(documentURI);
+			URL docURL = new URL(this.getDocumentURI());
 			URLConnection connection = docURL.openConnection();
 			result = connection.getHeaderField("Last-Modified");
 		} catch (Exception e) {
