@@ -29,6 +29,10 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +44,6 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.loboevolution.html.HtmlMapping;
-import org.loboevolution.html.HtmlMappingChar;
 import org.loboevolution.html.info.ElementInfo;
 import org.loboevolution.html.io.WritableLineReader;
 import org.loboevolution.http.UserAgentContext;
@@ -49,6 +52,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+
+import com.loboevolution.store.SQLiteCommon;
 
 /**
  * The <code>HtmlParser</code> class is an HTML DOM parser. This parser provides
@@ -66,9 +71,6 @@ public class HtmlParser {
 
 	/** The ucontext. */
 	private final UserAgentContext ucontext;
-
-	/** The entities. */
-	private static Map<String, Character> ENTITIES = new HashMap<String, Character>(256);
 
 	/** The element infos. */
 	private static Map<String, ElementInfo> ELEMENT_INFOS = new HashMap<String, ElementInfo>(35);
@@ -117,7 +119,6 @@ public class HtmlParser {
 	public static final String MODIFYING_KEY = "cobra.suspend";
 
 	static {
-		ENTITIES = HtmlMappingChar.mappingChar();
 		ELEMENT_INFOS = HtmlMapping.mappingTag();
 	}
 
@@ -1154,16 +1155,19 @@ public class HtmlParser {
 	 * @return the entity char
 	 */
 	private final int getEntityChar(String spec) {
-		// TODO: Declared entities
-		Character c = ENTITIES.get(spec);
-		if (c == null) {
-			String specTL = spec.toLowerCase();
-			c = ENTITIES.get(specTL);
-			if (c == null) {
-				return -1;
+		int htmlChar = 0;
+		try (Connection conn = DriverManager.getConnection(SQLiteCommon.getDatabaseDirectory());
+				PreparedStatement pstmt = conn.prepareStatement(SQLiteCommon.CHAR)) {
+			pstmt.setString(1, spec);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs != null && rs.next()) {
+					htmlChar = rs.getInt(1);
+				}
 			}
+		} catch (Exception e) {
+			logger.error(e);
 		}
-		return c.charValue();
+		return htmlChar;
 	}
 
 	/**

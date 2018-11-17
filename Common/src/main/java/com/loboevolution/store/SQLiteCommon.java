@@ -78,6 +78,8 @@ public class SQLiteCommon {
 		
 	public static final String CHECK_CACHE = "SELECT count(*) FROM cache WHERE baseUrl = ? AND contenLenght = ? AND etag = ? AND type = ?";
 	
+	public static final String CHAR = "SELECT name FROM CHAR WHERE value = ?";
+	
 	public static final String INSERT_CACHE = "INSERT INTO CACHE (baseUrl, source, contenLenght, etag, lastModified, type) VALUES(?,?,?,?,?,?)";
 	
 	public static final String INSERT_COOKIES = "INSERT INTO COOKIE (cookieName, cookieValue, domain, path, expires, maxAge,secure, httponly) VALUES(?,?,?,?,?,?,?,?)";
@@ -97,8 +99,6 @@ public class SQLiteCommon {
 	public static final String INSERT_INPUT= "INSERT INTO INPUT (name, value) VALUES(?,?)";
 	
 	public static final String INSERT_AUTH = "INSERT INTO AUTHENTICATION (name, baseUrl) VALUES(?,?)";
-	
-	public static final String INSERT_COLOR = "INSERT INTO COLOR (name, value) VALUES(?,?)";
 	
 	public static final String INSERT_BOOKMARKS = "INSERT INTO BOOKMARKS (name, description, baseUrl, tags) VALUES(?,?,?,?)";
 	

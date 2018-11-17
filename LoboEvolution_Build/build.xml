@@ -50,6 +50,9 @@
 			<fileset dir="${build.dir}" includes="cobra-no-commons.jar" />
 			<fileset dir="${build.dir}" includes="primary.jar" />
 		</copy>
+		<copy todir="${lobo.dir}/storage">
+			<fileset dir="LoboEvolution_Build/storage" includes="*.sql" />
+		</copy>
 		<copy todir="${lobo.dir}/doc">
 			<fileset dir="LoboEvolution_Build/lobo-docs" includes="**/*.html,**/*.css,**/*.gif" />
 		</copy>
