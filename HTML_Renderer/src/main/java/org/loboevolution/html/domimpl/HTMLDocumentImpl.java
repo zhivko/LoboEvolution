@@ -54,6 +54,7 @@ import org.loboevolution.html.domfilter.ElementNameFilter;
 import org.loboevolution.html.domfilter.EmbedFilter;
 import org.loboevolution.html.domfilter.FormFilter;
 import org.loboevolution.html.domfilter.FrameFilter;
+import org.loboevolution.html.domfilter.HeadFilter;
 import org.loboevolution.html.domfilter.ImageFilter;
 import org.loboevolution.html.domfilter.LinkFilter;
 import org.loboevolution.html.domfilter.PluginsFilter;
@@ -79,6 +80,7 @@ import org.loboevolution.w3c.html.HTMLDocument;
 import org.loboevolution.w3c.html.HTMLElement;
 import org.loboevolution.w3c.html.HTMLHeadElement;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.css.CSSStyleSheet;
 import org.w3c.dom.stylesheets.StyleSheetList;
@@ -116,6 +118,9 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 
 	/** The body. */
 	private HTMLElement body;
+	
+	/** The body. */
+	private HTMLHeadElement head;
 
 	/** The images. */
 	private HTMLCollection images;
@@ -1138,8 +1143,12 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 	 */
 	@Override
 	public HTMLHeadElement getHead() {
-		// TODO Auto-generated method stub
-		return null;
+		NodeList elementsByName = this.getNodeList(new HeadFilter());
+		if (elementsByName != null && elementsByName.getLength() > 0) {
+			return (HTMLHeadElement) elementsByName.item(0);
+		} else {
+			return null;
+		}
 	}
 
 	/*
