@@ -20,11 +20,17 @@
  */
 package org.loboevolution.html;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.loboevolution.html.builder.AnchorBuilder;
 import org.loboevolution.html.builder.AppletBuilder;
 import org.loboevolution.html.builder.AudioBuilder;
@@ -111,10 +117,15 @@ import org.loboevolution.html.buildersvg.SVGTextBuilder;
 import org.loboevolution.html.buildersvg.SVGUseBuilder;
 import org.loboevolution.html.info.ElementInfo;
 
+import com.loboevolution.store.SQLiteCommon;
+
 /**
  * The Class HtmlMapping.
  */
 public class HtmlMapping implements HtmlProperties {
+	
+	/** The Constant logger. */
+	private static final Logger logger = LogManager.getLogger(HtmlMapping.class);
 
 	/**
 	 * Mapping tag.
@@ -336,4 +347,23 @@ public class HtmlMapping implements HtmlProperties {
 		builders.put(ANIMATE_COLOR, new SVGAnimateColorBuilder());
 		return builders;
 	}
+	
+	/**
+	 * Mapping entities.
+	 *
+	 * @return the map
+	 */
+    public static Map<String, Character> mappingEntities(){
+    	Map<String, Character> map = new HashMap<String, Character>();
+    	try (Connection conn = DriverManager.getConnection(SQLiteCommon.getDatabaseDirectory());
+				PreparedStatement pstmt = conn.prepareStatement(SQLiteCommon.CHAR); ResultSet rs = pstmt.executeQuery()) {
+    		while (rs != null && rs.next()) {
+    			map.put(rs.getString(1), rs.getString(2).charAt(0));
+    		}
+    	} catch (Exception e) {
+			logger.error(e);
+		}
+    	return map;
+    
+    }
 }

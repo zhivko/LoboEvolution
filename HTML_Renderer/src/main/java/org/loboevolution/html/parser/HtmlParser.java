@@ -29,10 +29,6 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,8 +49,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.loboevolution.store.SQLiteCommon;
-
 /**
  * The <code>HtmlParser</code> class is an HTML DOM parser. This parser provides
  * the functionality for the standard DOM parser implementation
@@ -74,6 +68,9 @@ public class HtmlParser {
 
 	/** The element infos. */
 	private static Map<String, ElementInfo> ELEMENT_INFOS = new HashMap<String, ElementInfo>(35);
+	
+    /** The entities. */
+    private static Map<String, Character> ENTITIES = new HashMap<String, Character>(256);
 
 	/** The Constant TOKEN_EOD. */
 	private static final int TOKEN_EOD = 0;
@@ -120,6 +117,7 @@ public class HtmlParser {
 
 	static {
 		ELEMENT_INFOS = HtmlMapping.mappingTag();
+		ENTITIES = HtmlMapping.mappingEntities(); 
 	}
 
 	/**
@@ -1155,19 +1153,11 @@ public class HtmlParser {
 	 * @return the entity char
 	 */
 	private final int getEntityChar(String spec) {
-		int htmlChar = 0;
-		try (Connection conn = DriverManager.getConnection(SQLiteCommon.getDatabaseDirectory());
-				PreparedStatement pstmt = conn.prepareStatement(SQLiteCommon.CHAR)) {
-			pstmt.setString(1, spec);
-			try (ResultSet rs = pstmt.executeQuery()) {
-				while (rs != null && rs.next()) {
-					htmlChar = rs.getInt(1);
-				}
-			}
-		} catch (Exception e) {
-			logger.error(e);
+		Character c = ENTITIES.get(spec.toUpperCase());
+		if (c == null) {
+			return -1;
 		}
-		return htmlChar;
+		return c.charValue();
 	}
 
 	/**

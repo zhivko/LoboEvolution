@@ -78,7 +78,7 @@ public class SQLiteCommon {
 		
 	public static final String CHECK_CACHE = "SELECT count(*) FROM cache WHERE baseUrl = ? AND contenLenght = ? AND etag = ? AND type = ?";
 	
-	public static final String CHAR = "SELECT name FROM CHAR WHERE value = ?";
+	public static final String CHAR = "SELECT upper(name), value FROM CHAR";
 	
 	public static final String INSERT_CACHE = "INSERT INTO CACHE (baseUrl, source, contenLenght, etag, lastModified, type) VALUES(?,?,?,?,?,?)";
 	
