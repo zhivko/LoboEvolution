@@ -43,7 +43,6 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.loboevolution.html.HtmlRendererContext;
-import org.loboevolution.html.dombl.DescendentHTMLCollection;
 import org.loboevolution.html.dombl.DocumentNotificationListener;
 import org.loboevolution.html.dombl.ImageEvent;
 import org.loboevolution.html.dombl.ImageListener;
@@ -80,7 +79,6 @@ import org.loboevolution.w3c.html.HTMLDocument;
 import org.loboevolution.w3c.html.HTMLElement;
 import org.loboevolution.w3c.html.HTMLHeadElement;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.css.CSSStyleSheet;
 import org.w3c.dom.stylesheets.StyleSheetList;
@@ -119,9 +117,6 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 	/** The body. */
 	private HTMLElement body;
 	
-	/** The body. */
-	private HTMLHeadElement head;
-
 	/** The images. */
 	private HTMLCollection images;
 
@@ -447,7 +442,7 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 	 */
 	@Override
 	public NodeList getElementsByName(String elementName) {
-		return this.getNodeList(new ElementNameFilter(elementName));
+		return new HTMLCollectionImpl(this,new ElementNameFilter(elementName)).nodeList();
 	}
 	
 	/*
@@ -925,7 +920,7 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 	public HTMLCollection getImages() {
 		synchronized (this) {
 			if (this.images == null) {
-				this.images = new DescendentHTMLCollection(this, new ImageFilter(), this.getTreeLock());
+				this.images = new HTMLCollectionImpl(this,new ImageFilter());
 			}
 			return this.images;
 		}
@@ -940,7 +935,7 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 	public HTMLCollection getApplets() {
 		synchronized (this) {
 			if (this.applets == null) {
-				this.applets = new DescendentHTMLCollection(this, new AppletFilter(), this.getTreeLock());
+				this.applets = new HTMLCollectionImpl(this,new AppletFilter());
 			}
 			return this.applets;
 		}
@@ -955,7 +950,7 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 	public HTMLCollection getLinks() {
 		synchronized (this) {
 			if (this.links == null) {
-				this.links = new DescendentHTMLCollection(this, new LinkFilter(), this.getTreeLock());
+				this.links =  new HTMLCollectionImpl(this,new LinkFilter());
 			}
 			return this.links;
 		}
@@ -970,7 +965,7 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 	public HTMLCollection getForms() {
 		synchronized (this) {
 			if (this.forms == null) {
-				this.forms = new DescendentHTMLCollection(this, new FormFilter(), this.getTreeLock());
+				this.forms = new HTMLCollectionImpl(this,new FormFilter());
 			}
 			return this.forms;
 		}
@@ -984,7 +979,7 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 	public HTMLCollection getFrames() {
 		synchronized (this) {
 			if (this.frames == null) {
-				this.frames = new DescendentHTMLCollection(this, new FrameFilter(), this.getTreeLock());
+				this.frames = new HTMLCollectionImpl(this,new FrameFilter());
 			}
 			return this.frames;
 		}
@@ -999,31 +994,72 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 	public HTMLCollection getAnchors() {
 		synchronized (this) {
 			if (this.anchors == null) {
-				this.anchors = new DescendentHTMLCollection(this, new AnchorFilter(), this.getTreeLock());
+				this.anchors = new HTMLCollectionImpl(this,new AnchorFilter());
 			}
 			return this.anchors;
 		}
 	}
 	
-	/**
-	 * Gets the locales.
+	/*
+	 * (non-Javadoc)
 	 *
-	 * @return the locales
+	 * @see org.loboevolution.w3c.html.HTMLDocument#getEmbeds()
 	 */
-	public Set<?> getLocales() {
-		return locales;
+	@Override
+	public HTMLCollection getEmbeds() {
+		synchronized (this) {
+			if (this.embeds == null) {
+				this.embeds = new HTMLCollectionImpl(this,new EmbedFilter());
+			}
+			return this.embeds;
+		}
 	}
 
-	/**
-	 * Sets the locales.
+	/*
+	 * (non-Javadoc)
 	 *
-	 * @param locales
-	 *            the new locales
+	 * @see org.loboevolution.w3c.html.HTMLDocument#getPlugins()
 	 */
-	public void setLocales(Set<?> locales) {
-		this.locales = locales;
+	@Override
+	public HTMLCollection getPlugins() {
+		synchronized (this) {
+			if (this.plugins == null) {
+				this.plugins = new HTMLCollectionImpl(this,new PluginsFilter());
+			}
+			return this.plugins;
+		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.loboevolution.w3c.html.HTMLDocument#getScripts()
+	 */
+	@Override
+	public HTMLCollection getScripts() {
+		synchronized (this) {
+			if (this.scripts == null) {
+				this.scripts = new HTMLCollectionImpl(this,new ScriptFilter());
+			}
+			return this.scripts;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.loboevolution.w3c.html.HTMLDocument#getCommands()
+	 */
+	@Override
+	public HTMLCollection getCommands() {
+		synchronized (this) {
+			if (this.commands == null) {
+				this.commands = new HTMLCollectionImpl(this,new CommandFilter());
+			}
+			return this.commands;
+		}
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 *
@@ -1034,36 +1070,7 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 		String buri = this.baseURI;
 		return buri == null ? this.getDocumentURI() : buri;
 	}
-
-	/**
-	 * Sets the base uri.
-	 *
-	 * @param value
-	 *            the new base uri
-	 */
-	public void setBaseURI(String value) {
-		this.baseURI = value;
-	}
-
-	/**
-	 * Gets the default target.
-	 *
-	 * @return the default target
-	 */
-	public String getDefaultTarget() {
-		return this.defaultTarget;
-	}
-
-	/**
-	 * Sets the default target.
-	 *
-	 * @param value
-	 *            the new default target
-	 */
-	public void setDefaultTarget(String value) {
-		this.defaultTarget = value;
-	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 *
@@ -1143,71 +1150,59 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 	 */
 	@Override
 	public HTMLHeadElement getHead() {
-		NodeList elementsByName = this.getNodeList(new HeadFilter());
+		NodeList elementsByName = new HTMLCollectionImpl(this, new HeadFilter()).nodeList();
 		if (elementsByName != null && elementsByName.getLength() > 0) {
 			return (HTMLHeadElement) elementsByName.item(0);
 		} else {
 			return null;
 		}
 	}
-
-	/*
-	 * (non-Javadoc)
+	
+	/**
+	 * Gets the locales.
 	 *
-	 * @see org.loboevolution.w3c.html.HTMLDocument#getEmbeds()
+	 * @return the locales
 	 */
-	@Override
-	public HTMLCollection getEmbeds() {
-		synchronized (this) {
-			if (this.embeds == null) {
-				this.embeds = new DescendentHTMLCollection(this, new EmbedFilter(), this.getTreeLock());
-			}
-			return this.embeds;
-		}
+	public Set<?> getLocales() {
+		return locales;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Sets the locales.
 	 *
-	 * @see org.loboevolution.w3c.html.HTMLDocument#getPlugins()
+	 * @param locales
+	 *            the new locales
 	 */
-	@Override
-	public HTMLCollection getPlugins() {
-		synchronized (this) {
-			if (this.plugins == null) {
-				this.plugins = new DescendentHTMLCollection(this, new PluginsFilter(), this.getTreeLock());
-			}
-			return this.plugins;
-		}
+	public void setLocales(Set<?> locales) {
+		this.locales = locales;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Sets the base uri.
 	 *
-	 * @see org.loboevolution.w3c.html.HTMLDocument#getScripts()
+	 * @param value
+	 *            the new base uri
 	 */
-	@Override
-	public HTMLCollection getScripts() {
-		synchronized (this) {
-			if (this.scripts == null) {
-				this.scripts = new DescendentHTMLCollection(this, new ScriptFilter(), this.getTreeLock());
-			}
-			return this.scripts;
-		}
+	public void setBaseURI(String value) {
+		this.baseURI = value;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Gets the default target.
 	 *
-	 * @see org.loboevolution.w3c.html.HTMLDocument#getCommands()
+	 * @return the default target
 	 */
-	@Override
-	public HTMLCollection getCommands() {
-		synchronized (this) {
-			if (this.commands == null) {
-				this.commands = new DescendentHTMLCollection(this, new CommandFilter(), this.getTreeLock());
-			}
-			return this.commands;
-		}
+	public String getDefaultTarget() {
+		return this.defaultTarget;
+	}
+
+	/**
+	 * Sets the default target.
+	 *
+	 * @param value
+	 *            the new default target
+	 */
+	public void setDefaultTarget(String value) {
+		this.defaultTarget = value;
 	}
 }

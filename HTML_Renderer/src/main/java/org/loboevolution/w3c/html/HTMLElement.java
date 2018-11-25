@@ -22,7 +22,6 @@
 package org.loboevolution.w3c.html;
 
 import org.loboevolution.html.style.AbstractCSSProperties;
-import org.mozilla.javascript.Function;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 

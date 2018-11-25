@@ -29,7 +29,6 @@ import java.util.ArrayList;
 
 import org.loboevolution.html.FormInput;
 import org.loboevolution.html.HtmlRendererContext;
-import org.loboevolution.html.dombl.DescendentHTMLCollection;
 import org.loboevolution.html.dombl.NodeVisitor;
 import org.loboevolution.html.dombl.StopVisitorException;
 import org.loboevolution.html.domfilter.InputFilter;
@@ -125,7 +124,7 @@ public class HTMLFormElementImpl extends HTMLAbstractUIElement implements HTMLFo
 	public HTMLCollection getElements() {
 		HTMLCollection elements = this.elements;
 		if (elements == null) {
-			elements = new DescendentHTMLCollection(this, new InputFilter(), this.getTreeLock(), false);
+			elements = new HTMLCollectionImpl(this, new InputFilter());
 			this.elements = elements;
 		}
 		return elements;

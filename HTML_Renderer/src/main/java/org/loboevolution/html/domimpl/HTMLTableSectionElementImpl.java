@@ -1,6 +1,5 @@
 package org.loboevolution.html.domimpl;
 
-import org.loboevolution.html.dombl.DescendentHTMLCollection;
 import org.loboevolution.html.domfilter.ElementTableAttributeFilter;
 import org.loboevolution.w3c.html.HTMLCollection;
 import org.loboevolution.w3c.html.HTMLElement;
@@ -18,8 +17,7 @@ public class HTMLTableSectionElementImpl extends HTMLAbstractUIElement implement
 
 	@Override
 	public HTMLCollection getRows() {
-		return new DescendentHTMLCollection(this, new ElementTableAttributeFilter(TR),
-				this.getTreeLock(), false);
+		return new HTMLCollectionImpl(this, new ElementTableAttributeFilter(TR));
 	}
 
 	@Override

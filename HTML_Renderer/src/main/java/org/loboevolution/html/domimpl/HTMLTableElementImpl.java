@@ -25,7 +25,6 @@ package org.loboevolution.html.domimpl;
 
 import java.util.ArrayList;
 
-import org.loboevolution.html.dombl.DescendentHTMLCollection;
 import org.loboevolution.html.domfilter.ElementTableAttributeFilter;
 import org.loboevolution.html.renderstate.RenderState;
 import org.loboevolution.html.renderstate.TableRenderState;
@@ -145,8 +144,7 @@ public class HTMLTableElementImpl extends HTMLAbstractUIElement implements HTMLT
 	 */
 	@Override
 	public HTMLCollection getRows() {
-		return new DescendentHTMLCollection(this, new ElementTableAttributeFilter(TR),
-				this.getTreeLock(), false);
+		return new HTMLCollectionImpl(this, new ElementTableAttributeFilter(TR));
 	}
 
 	/*
@@ -156,8 +154,7 @@ public class HTMLTableElementImpl extends HTMLAbstractUIElement implements HTMLT
 	 */
 	@Override
 	public HTMLCollection getTBodies() {
-		return new DescendentHTMLCollection(this, new ElementTableAttributeFilter(TBODY),
-				this.getTreeLock(), false);
+		return new HTMLCollectionImpl(this, new ElementTableAttributeFilter(TBODY));
 	}
 
 	/*

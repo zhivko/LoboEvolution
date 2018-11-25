@@ -83,14 +83,14 @@ public abstract class DOMFunctionImpl extends DOMNodeImpl implements HtmlJsAttri
 			"subscript", "superscript", "underline", "undo", "unlink", "useCSS", "styleWithCSS" });
 
 	public NodeList getElementsByClassName(String classNames) {
-		return this.getNodeList(new ClassNameFilter(classNames));
+		return new HTMLCollectionImpl(this,new ClassNameFilter(classNames)).nodeList();
 	}
 
 	public NodeList getElementsByTagName(String tagname) {
 		if ("*".equals(tagname)) {
-			return this.getNodeList(new ElementFilter());
+			return new HTMLCollectionImpl(this,new ElementFilter()).nodeList();
 		} else {
-			return this.getNodeList(new TagNameFilter(tagname));
+			return new HTMLCollectionImpl(this,new TagNameFilter(tagname)).nodeList();
 		}
 	}
 

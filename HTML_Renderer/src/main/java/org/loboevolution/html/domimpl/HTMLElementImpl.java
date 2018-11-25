@@ -34,7 +34,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.loboevolution.font.LAFSettings;
 import org.loboevolution.html.FormInput;
@@ -56,12 +55,12 @@ import org.loboevolution.w3c.html.DOMStringMap;
 import org.loboevolution.w3c.html.DOMTokenList;
 import org.loboevolution.w3c.html.HTMLElement;
 import org.loboevolution.w3c.html.HTMLPropertiesCollection;
-import com.gargoylesoftware.css.parser.InputSource;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSStyleDeclaration;
 
 import com.gargoylesoftware.css.parser.CSSOMParser;
+import com.gargoylesoftware.css.parser.InputSource;
 
 /**
  * The Class HTMLElementImpl.

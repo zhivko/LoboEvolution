@@ -28,12 +28,14 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.loboevolution.html.HtmlAttributeProperties;
 import org.loboevolution.html.HtmlRendererContext;
 import org.loboevolution.html.domfilter.CaptionFilter;
-import org.loboevolution.html.domimpl.DOMNodeImpl;
+import org.loboevolution.html.domimpl.DOMNodeListImpl;
+import org.loboevolution.html.domimpl.HTMLCollectionImpl;
 import org.loboevolution.html.domimpl.HTMLElementImpl;
 import org.loboevolution.html.domimpl.HTMLTableCaptionElementImpl;
 import org.loboevolution.html.info.CaptionSizeInfo;
@@ -237,9 +239,9 @@ public class TableMatrix implements HtmlAttributeProperties, CSSValuesProperties
 		this.cellSpacingY = cellSpacing;
 		this.tableWidthLength = TableRender.getWidthLength(this.tableElement, availWidth);
 		
-		List<DOMNodeImpl> captionList = tableElement.getDescendents(new CaptionFilter(), false);
-		if (!captionList.isEmpty()) {
-			HTMLTableCaptionElementImpl capt = (HTMLTableCaptionElementImpl) captionList.get(0);
+		DOMNodeListImpl captionList = new HTMLCollectionImpl(tableElement, new CaptionFilter()).nodeList();
+		if (captionList != null) {
+			HTMLTableCaptionElementImpl capt = (HTMLTableCaptionElementImpl) captionList.item(0);
 			this.captionElement = capt;
 			this.caption = new RTableCaption(capt, parserContext, rendererContext, frameContext, container);
 		} else {

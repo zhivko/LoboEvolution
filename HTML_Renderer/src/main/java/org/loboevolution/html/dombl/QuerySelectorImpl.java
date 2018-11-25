@@ -24,6 +24,7 @@ import java.util.ArrayList;
 
 import org.loboevolution.html.domfilter.ElementFilter;
 import org.loboevolution.html.domimpl.DOMNodeListImpl;
+import org.loboevolution.html.domimpl.HTMLCollectionImpl;
 import org.loboevolution.html.domimpl.HTMLDocumentImpl;
 import org.loboevolution.util.Nodes;
 import org.w3c.dom.Attr;
@@ -105,7 +106,7 @@ public class QuerySelectorImpl {
 			String[] str = selectors.split("\\,");
 			String str0 = str[0].trim();
 			String str1 = str[1].trim();
-			NodeList nodeList = doc.getNodeList(new ElementFilter());
+			NodeList nodeList = new HTMLCollectionImpl(doc, new ElementFilter()).nodeList();
 			for (Node node : Nodes.iterable(nodeList)) {
 				if (str0.equals(node.getNodeName()) || str1.equals(node.getNodeName())) {
 					element = (Element) doc.getElementsByTagName(node.getNodeName()).item(0);
@@ -182,7 +183,7 @@ public class QuerySelectorImpl {
 		} else if (selectors.contains(",")) {
 
 			String[] str = selectors.split("\\,");
-			NodeList nodeList = doc.getNodeList(new ElementFilter());
+			NodeList nodeList = new HTMLCollectionImpl(doc, new ElementFilter()).nodeList();
 			for (Node node : Nodes.iterable(nodeList)) {
 				for (String element : str) {
 					if (node.getNodeName().equals(element.trim())) {

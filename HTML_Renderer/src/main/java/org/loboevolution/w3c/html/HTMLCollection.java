@@ -33,7 +33,6 @@ public interface HTMLCollection {
 	 *
 	 * @return the length
 	 */
-	// HTMLCollection
 	public int getLength();
 
 	/**

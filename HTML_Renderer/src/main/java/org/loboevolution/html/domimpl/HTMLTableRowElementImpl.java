@@ -22,7 +22,6 @@ package org.loboevolution.html.domimpl;
 
 import java.util.ArrayList;
 
-import org.loboevolution.html.dombl.DescendentHTMLCollection;
 import org.loboevolution.html.dombl.NodeVisitor;
 import org.loboevolution.html.dombl.StopVisitorException;
 import org.loboevolution.html.domfilter.NodeFilter;
@@ -95,7 +94,7 @@ public class HTMLTableRowElementImpl extends HTMLAbstractUIElement implements HT
 	@Override
 	public HTMLCollection getCells() {
 		NodeFilter filter = node -> node instanceof HTMLTableCellElementImpl;
-		return new DescendentHTMLCollection(this, filter, this.getTreeLock(), false);
+		return new HTMLCollectionImpl(this, filter);
 	}
 
 	/*

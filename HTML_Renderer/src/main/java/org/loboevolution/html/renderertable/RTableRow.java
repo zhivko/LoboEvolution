@@ -22,14 +22,15 @@ package org.loboevolution.html.renderertable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+
+import org.loboevolution.util.Nodes;
 import org.loboevolution.util.Objects;
 
 import org.loboevolution.html.HtmlRendererContext;
 import org.loboevolution.html.domfilter.ColumnsFilter;
-import org.loboevolution.html.domimpl.DOMNodeImpl;
+import org.loboevolution.html.domimpl.DOMNodeListImpl;
+import org.loboevolution.html.domimpl.HTMLCollectionImpl;
 import org.loboevolution.html.domimpl.HTMLElementImpl;
 import org.loboevolution.html.renderer.BoundableRenderable;
 import org.loboevolution.html.renderer.FrameContext;
@@ -53,11 +54,10 @@ public class RTableRow {
 
 		ArrayList<HTMLElementImpl> rElements = rowElements;
 		Map<HTMLElementImpl, ArrayList<VirtualCell>> rowElementToRowArray = new HashMap<>(2);
-		List<DOMNodeImpl> cellList = te.getDescendents(new ColumnsFilter(), false);
+		DOMNodeListImpl cellList = new HTMLCollectionImpl(te, new ColumnsFilter()).nodeList();
 		ArrayList<VirtualCell> currentNullRow = null;
-		Iterator<DOMNodeImpl> ci = cellList.iterator();
-		while (ci.hasNext()) {
-			final HTMLElementImpl columnNode = (HTMLElementImpl) ci.next();
+		for (Node node : Nodes.iterable(cellList)) {
+			final HTMLElementImpl columnNode = (HTMLElementImpl) node;
 			final HTMLElementImpl rowElement = getParentRow(columnNode, te);
 			if ((rowElement != null) && (rowElement.getRenderState().getDisplay() == RenderState.DISPLAY_NONE)) {
 				continue;
@@ -92,7 +92,7 @@ public class RTableRow {
 			row.add(vc);
 			allCells.add(ac);
 		}
-		
+
 		return rElements;
 	}
 

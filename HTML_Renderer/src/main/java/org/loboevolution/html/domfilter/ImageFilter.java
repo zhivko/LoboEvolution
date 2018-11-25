@@ -22,6 +22,7 @@ package org.loboevolution.html.domfilter;
 
 
 
+import org.loboevolution.w3c.html.HTMLImageElement;
 import org.w3c.dom.Node;
 
 /**
@@ -36,6 +37,6 @@ public class ImageFilter implements NodeFilter {
 	 */
 	@Override
 	public boolean accept(Node node) {
-		return IMG.equalsIgnoreCase(node.getNodeName());
+		return node instanceof HTMLImageElement;
 	}
 }

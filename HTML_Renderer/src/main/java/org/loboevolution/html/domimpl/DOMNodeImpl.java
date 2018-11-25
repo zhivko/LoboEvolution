@@ -23,7 +23,6 @@ package org.loboevolution.html.domimpl;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,7 +34,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.loboevolution.html.HtmlAttributeProperties;
 import org.loboevolution.html.HtmlRendererContext;
-import org.loboevolution.html.dombl.ChildHTMLCollection;
 import org.loboevolution.html.dombl.ModelNode;
 import org.loboevolution.html.dombl.NodeVisitor;
 import org.loboevolution.html.dombl.SkipVisitorException;
@@ -105,7 +103,7 @@ public abstract class DOMNodeImpl extends FunctionImpl implements Node, ModelNod
 	private RenderState renderState = INVALID_RENDER_STATE;
 
 	/** The children collection. */
-	private ChildHTMLCollection childrenCollection;
+	private HTMLCollectionImpl childrenCollection;
 
 	/** The prefix. */
 	private volatile String prefix;
@@ -202,21 +200,6 @@ public abstract class DOMNodeImpl extends FunctionImpl implements Node, ModelNod
 	}
 
 	/**
-	 * Gets the node list.
-	 *
-	 * @param filter
-	 *            the filter
-	 * @return the node list
-	 */
-	public NodeList getNodeList(NodeFilter filter) {
-		Collection<DOMNodeImpl> collection = new ArrayList<DOMNodeImpl>();
-		synchronized (this.getTreeLock()) {
-			this.appendChildrenToCollectionImpl(filter, collection);
-		}
-		return new DOMNodeListImpl(collection);
-	}
-
-	/**
 	 * Gets the children array.
 	 *
 	 * @return the children array
@@ -229,101 +212,19 @@ public abstract class DOMNodeImpl extends FunctionImpl implements Node, ModelNod
 	}
 
 	/**
-	 * Gets the child count.
-	 *
-	 * @return the child count
-	 */
-	public int getChildCount() {
-		ArrayList<Node> nl = this.nodeList;
-		synchronized (this.getTreeLock()) {
-			return nl == null ? 0 : nl.size();
-		}
-	}
-
-	/**
 	 * Gets the children.
 	 *
 	 * @return the children
 	 */
-	public ChildHTMLCollection getChildren() {
+	public HTMLCollectionImpl getChildren() {
 		// Method required by JavaScript
 		synchronized (this) {
-			ChildHTMLCollection collection = this.childrenCollection;
+			HTMLCollectionImpl collection = this.childrenCollection;
 			if (collection == null) {
-				collection = new ChildHTMLCollection(this);
+				collection = new HTMLCollectionImpl(this, null);
 				this.childrenCollection = collection;
 			}
 			return collection;
-		}
-	}
-
-	/**
-	 * Creates an <code>ArrayList</code> of descendent nodes that the given filter
-	 * condition.
-	 *
-	 * @param filter
-	 *            the filter
-	 * @param nestIntoMatchingNodes
-	 *            the nest into matching nodes
-	 * @return the descendents
-	 */
-	public List<DOMNodeImpl> getDescendents(NodeFilter filter, boolean nestIntoMatchingNodes) {
-		ArrayList<DOMNodeImpl> al = new ArrayList<DOMNodeImpl>();
-		synchronized (this.getTreeLock()) {
-			this.extractDescendentsArrayImpl(filter, al, nestIntoMatchingNodes);
-		}
-		return al;
-	}
-
-	/**
-	 * Extracts all descendents that match the filter, except those descendents of
-	 * nodes that match the filter.
-	 *
-	 * @param filter
-	 *            the filter
-	 * @param al
-	 *            the al
-	 * @param nestIntoMatchingNodes
-	 *            the nest into matching nodes
-	 */
-	private void extractDescendentsArrayImpl(NodeFilter filter, ArrayList<DOMNodeImpl> al,
-			boolean nestIntoMatchingNodes) {
-		ArrayList<Node> nl = this.nodeList;
-		if (nl != null) {
-			Iterator<Node> i = nl.iterator();
-			while (i.hasNext()) {
-				DOMNodeImpl n = (DOMNodeImpl) i.next();
-				if (filter.accept(n)) {
-					al.add(n);
-					if (nestIntoMatchingNodes) {
-						n.extractDescendentsArrayImpl(filter, al, nestIntoMatchingNodes);
-					}
-				} else if (n.getNodeType() == Node.ELEMENT_NODE) {
-					n.extractDescendentsArrayImpl(filter, al, nestIntoMatchingNodes);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Append children to collection impl.
-	 *
-	 * @param filter
-	 *            the filter
-	 * @param collection
-	 *            the collection
-	 */
-	private void appendChildrenToCollectionImpl(NodeFilter filter, Collection<DOMNodeImpl> collection) {
-		ArrayList<Node> nl = this.nodeList;
-		if (nl != null) {
-			Iterator<Node> i = nl.iterator();
-			while (i.hasNext()) {
-				DOMNodeImpl node = (DOMNodeImpl) i.next();
-				if (filter.accept(node)) {
-					collection.add(node);
-				}
-				node.appendChildrenToCollectionImpl(filter, collection);
-			}
 		}
 	}
 
@@ -383,42 +284,13 @@ public abstract class DOMNodeImpl extends FunctionImpl implements Node, ModelNod
 	 */
 	private int getNodeIndex() {
 		DOMNodeImpl parent = (DOMNodeImpl) this.getParentNode();
-		return parent == null ? -1 : parent.getChildIndex(this);
-	}
-
-	/**
-	 * Gets the child index.
-	 *
-	 * @param child
-	 *            the child
-	 * @return the child index
-	 */
-	public int getChildIndex(Node child) {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			return nl == null ? -1 : nl.indexOf(child);
-		}
-	}
-
-	/**
-	 * Gets the child at index.
-	 *
-	 * @param index
-	 *            the index
-	 * @return the child at index
-	 */
-	public Node getChildAtIndex(int index) {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			if (nl == null)
-				return null;
-		}
-
-		int size = this.nodeList.size();
-		if (size > index && index > -1) {
-			return (Node) this.nodeList.get(index);
+		if (parent == null) {
+			return -1;
 		} else {
-			return null;
+			synchronized (this.getTreeLock()) {
+				ArrayList<Node> nl = this.nodeList;
+				return nl == null ? -1 : nl.indexOf(this);
+			}
 		}
 	}
 

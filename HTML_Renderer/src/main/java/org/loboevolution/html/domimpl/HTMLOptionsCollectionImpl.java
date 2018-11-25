@@ -20,7 +20,6 @@
  */
 package org.loboevolution.html.domimpl;
 
-import org.loboevolution.html.dombl.DescendentHTMLCollection;
 import org.loboevolution.html.domfilter.NodeFilter;
 import org.loboevolution.html.domfilter.OptionFilter;
 import org.loboevolution.w3c.html.HTMLElement;
@@ -30,7 +29,7 @@ import org.w3c.dom.DOMException;
 /**
  * The Class HTMLOptionsCollectionImpl.
  */
-public class HTMLOptionsCollectionImpl extends DescendentHTMLCollection implements HTMLOptionsCollection {
+public class HTMLOptionsCollectionImpl extends HTMLCollectionImpl implements HTMLOptionsCollection {
 
 	/** The Constant OPTION_FILTER. */
 	public static final NodeFilter OPTION_FILTER = new OptionFilter();
@@ -42,7 +41,7 @@ public class HTMLOptionsCollectionImpl extends DescendentHTMLCollection implemen
 	 *            the select element
 	 */
 	public HTMLOptionsCollectionImpl(HTMLElementImpl selectElement) {
-		super(selectElement, OPTION_FILTER, selectElement.getTreeLock(), false);
+		super(selectElement, OPTION_FILTER);
 	}
 
 	/*

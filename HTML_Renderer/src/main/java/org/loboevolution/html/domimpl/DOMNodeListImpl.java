@@ -45,7 +45,6 @@ public class DOMNodeListImpl extends AbstractScriptableDelegate implements NodeL
 	 *            the collection
 	 */
 	public DOMNodeListImpl(Collection collection) {
-		super();
 		nodeList.addAll(collection);
 	}
 
@@ -72,5 +71,9 @@ public class DOMNodeListImpl extends AbstractScriptableDelegate implements NodeL
 		} else {
 			return null;
 		}
+	}
+	
+	protected int indexOf(Node node) {
+		return nodeList.indexOf(node);
 	}
 }
