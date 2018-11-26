@@ -264,9 +264,7 @@ public class LocalSecurityPolicy extends Policy {
 			// Get possible cookie domains for current location
 			// and allow managed store access there.
 			Collection<String> domains = Domains.getPossibleDomains(hostName);
-			Iterator<String> i = domains.iterator();
-			while (i.hasNext()) {
-				String domain = (String) i.next();
+			for (String domain : domains) {
 				permissions.add(StoreHostPermission.forHost(domain));
 			}
 		}

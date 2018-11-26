@@ -34,6 +34,7 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
+import org.loboevolution.arraylist.ArrayUtilities;
 import org.loboevolution.html.domimpl.HTMLBaseInputElement;
 import org.loboevolution.html.domimpl.HTMLSelectElementImpl;
 import org.loboevolution.html.gui.mouse.GuiMouseImpl;
@@ -263,16 +264,12 @@ public class InputSelectControl extends BaseInputControl {
 						defaultSelectedIndexes.add(Integer.valueOf(index));
 					}
 				}
-				if (selectedIndexes != null && !selectedIndexes.isEmpty()) {
-					Iterator<Integer> sii = selectedIndexes.iterator();
-					while (sii.hasNext()) {
-						Integer si = sii.next();
+				if (ArrayUtilities.isNotBlank(selectedIndexes)) {
+					for (Integer si : selectedIndexes) {
 						list.addSelectionInterval(si.intValue(), si.intValue());
 					}
-				} else if (defaultSelectedIndexes != null && !defaultSelectedIndexes.isEmpty()) {
-					Iterator<Integer> sii = defaultSelectedIndexes.iterator();
-					while (sii.hasNext()) {
-						Integer si = sii.next();
+				} else if (ArrayUtilities.isNotBlank(defaultSelectedIndexes)) {
+					for (Integer si : defaultSelectedIndexes) {
 						list.addSelectionInterval(si.intValue(), si.intValue());
 					}
 				}

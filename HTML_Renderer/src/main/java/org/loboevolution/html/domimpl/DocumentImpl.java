@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.loboevolution.arraylist.ArrayUtilities;
 import org.loboevolution.html.HtmlRendererContext;
 import org.loboevolution.html.dombl.ElementFactory;
 import org.loboevolution.html.io.WritableLineReader;
@@ -99,11 +100,9 @@ public class DocumentImpl extends DOMFunctionImpl implements Document, DocumentE
 	@Override
 	public Element getDocumentElement() {
 		synchronized (this.getTreeLock()) {
-			ArrayList<?> nl = this.nodeList;
-			if (nl != null) {
-				Iterator<?> i = nl.iterator();
-				while (i.hasNext()) {
-					Object node = i.next();
+			ArrayList<Node> nl = this.nodeList;
+			if (ArrayUtilities.isNotBlank(nl)) {
+				for (Node node : nl) {
 					if (node instanceof Element) {
 						return (Element) node;
 					}

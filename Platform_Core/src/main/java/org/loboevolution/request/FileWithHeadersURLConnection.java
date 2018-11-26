@@ -35,6 +35,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.loboevolution.arraylist.ArrayUtilities;
 import org.loboevolution.http.NameValuePair;
 import org.loboevolution.util.io.IORoutines;
 
@@ -185,7 +186,7 @@ public class FileWithHeadersURLConnection extends HttpURLConnection {
 			return null;
 		}
 		List hvalues = this.headersMap.get(name.toLowerCase());
-		if (hvalues == null || hvalues.isEmpty()) {
+		if(ArrayUtilities.isBlank(hvalues)) {
 			return null;
 		}
 		return (String) hvalues.get(0);

@@ -145,9 +145,7 @@ public class WeakValueHashMap implements Map<Object, Object> {
 	@Override
 	public void putAll(Map<?, ?> t) {
 		this.checkQueue();
-		Iterator<?> i = t.entrySet().iterator();
-		while (i.hasNext()) {
-			Map.Entry entry = (Map.Entry) i.next();
+		for (Map.Entry entry : t.entrySet()) {
 			this.putImpl(entry.getKey(), entry.getValue());
 		}
 	}

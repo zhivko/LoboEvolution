@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.loboevolution.arraylist.ArrayUtilities;
 import org.loboevolution.w3c.svg.SVGAnimatedNumber;
 import org.loboevolution.w3c.svg.SVGAnimatedPathData;
 import org.loboevolution.w3c.svg.SVGPathElement;
@@ -573,7 +574,7 @@ public class SVGPathElementImpl extends SVGSVGElementImpl implements SVGPathElem
 	}
 
 	private String nextString(LinkedList<String> l) {
-		if (l != null && !l.isEmpty()) {
+		if(ArrayUtilities.isNotBlank(l)) {
 			return l.removeFirst();
 		} else {
 			return "";

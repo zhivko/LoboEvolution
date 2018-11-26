@@ -32,6 +32,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.loboevolution.arraylist.ArrayUtilities;
 import org.loboevolution.html.HtmlAttributeProperties;
 import org.loboevolution.html.HtmlRendererContext;
 import org.loboevolution.html.dombl.ModelNode;
@@ -388,10 +389,9 @@ public abstract class DOMNodeImpl extends FunctionImpl implements Node, ModelNod
 		if (deep) {
 			synchronized (this.getTreeLock()) {
 				ArrayList<Node> nl = this.nodeList;
-				if (nl != null) {
-					Iterator<Node> i = nl.iterator();
-					while (i.hasNext()) {
-						DOMNodeImpl child = (DOMNodeImpl) i.next();
+				if (ArrayUtilities.isNotBlank(nl)) {
+					for (Node node : nl) {
+						DOMNodeImpl child = (DOMNodeImpl) node;
 						child.setOwnerDocument(value, deep);
 					}
 				}
@@ -414,12 +414,10 @@ public abstract class DOMNodeImpl extends FunctionImpl implements Node, ModelNod
 			throw sve;
 		}
 		ArrayList<Node> nl = this.nodeList;
-		if (nl != null) {
-			Iterator<Node> i = nl.iterator();
-			while (i.hasNext()) {
-				DOMNodeImpl child = (DOMNodeImpl) i.next();
+		if (ArrayUtilities.isNotBlank(nl)) {
+			for (Node node : nl) {
+				DOMNodeImpl child = (DOMNodeImpl) node;
 				try {
-					// Call with child's synchronization
 					child.visit(visitor);
 				} catch (StopVisitorException sve) {
 					throw sve;
@@ -870,10 +868,8 @@ public abstract class DOMNodeImpl extends FunctionImpl implements Node, ModelNod
 		StringBuilder sb = new StringBuilder();
 		synchronized (this.getTreeLock()) {
 			ArrayList<Node> nl = this.nodeList;
-			if (nl != null) {
-				Iterator<Node> i = nl.iterator();
-				while (i.hasNext()) {
-					Node node = i.next();
+			if (ArrayUtilities.isNotBlank(nl)) {
+				for (Node node : nl) {
 					short type = node.getNodeType();
 					switch (type) {
 					case Node.CDATA_SECTION_NODE:
@@ -1176,12 +1172,10 @@ public abstract class DOMNodeImpl extends FunctionImpl implements Node, ModelNod
 	public void normalize() {
 		synchronized (this.getTreeLock()) {
 			ArrayList<Node> nl = this.nodeList;
-			if (nl != null) {
-				Iterator<Node> i = nl.iterator();
+			if (ArrayUtilities.isNotBlank(nl)) {
 				List<Node> textNodes = new LinkedList<Node>();
 				boolean prevText = false;
-				while (i.hasNext()) {
-					Node child = i.next();
+				for (Node child : nl) {
 					if (child.getNodeType() == Node.TEXT_NODE) {
 						if (!prevText) {
 							prevText = true;
@@ -1191,9 +1185,8 @@ public abstract class DOMNodeImpl extends FunctionImpl implements Node, ModelNod
 						prevText = false;
 					}
 				}
-				i = textNodes.iterator();
-				while (i.hasNext()) {
-					Text text = (Text) i.next();
+				for (Node node : textNodes) {
+					Text text = (Text) node;
 					this.replaceAdjacentTextNodes(text);
 				}
 			}
@@ -1534,13 +1527,10 @@ public abstract class DOMNodeImpl extends FunctionImpl implements Node, ModelNod
 		synchronized (this.getTreeLock()) {
 			if (this.renderState != INVALID_RENDER_STATE) {
 				this.renderState = INVALID_RENDER_STATE;
-				// Note that getRenderState() "validates"
-				// ancestor states as well.
 				ArrayList<Node> nl = this.nodeList;
-				if (nl != null) {
-					Iterator<Node> i = nl.iterator();
-					while (i.hasNext()) {
-						((DOMNodeImpl) i.next()).forgetRenderState();
+				if (ArrayUtilities.isNotBlank(nl)) {
+					for (Node node : nl) {
+						((DOMNodeImpl) node).forgetRenderState();
 					}
 				}
 			}

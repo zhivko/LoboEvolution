@@ -26,7 +26,6 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -124,9 +123,7 @@ public class StyleSheetAggregator {
 	 */
 	public final void addStyleSheets(List<CSSStyleSheet> styleSheets)
 			throws MalformedURLException, UnsupportedEncodingException {
-		Iterator<CSSStyleSheet> i = styleSheets.iterator();
-		while (i.hasNext()) {
-			CSSStyleSheet sheet = i.next();
+		for (CSSStyleSheet sheet : styleSheets) {
 			this.addStyleSheet(sheet);
 		}
 	}
@@ -416,13 +413,9 @@ public class StyleSheetAggregator {
 			}
 
 			int c = cnt++;
-
-			Iterator<StyleRuleInfo> i = elementRules.iterator();
-			while (i.hasNext()) {
-				StyleRuleInfo styleRuleInfo = i.next();
-				for (int a = 0; a < styleRuleInfo.getAncestorSelectors().size(); a++) {
-					SelectorMatcher selectorMatcher = styleRuleInfo.getAncestorSelectors().get(a);
-					boolean matches = am.matchesPseudoClassSelector(selectorMatcher.getPseudoElement(), element, c);
+			for (StyleRuleInfo styleRuleInfo : elementRules) {
+				for (SelectorMatcher selectorMatcher : styleRuleInfo.getAncestorSelectors()) {
+				boolean matches = am.matchesPseudoClassSelector(selectorMatcher.getPseudoElement(), element, c);
 					boolean contains = element.getPseudoNames().contains(psElement);
 					if ((matches && contains) || (!matches && !contains)) {
 						styleDeclarations = putStyleDeclarations(elementRules, styleDeclarations, element, pseudoNames);
@@ -568,9 +561,7 @@ public class StyleSheetAggregator {
 	private boolean isAffectedByPseudoNameInAncestor(Collection<StyleRuleInfo> elementRules, HTMLElementImpl ancestor,
 			HTMLElementImpl element, String pseudoName) {
 		if (elementRules != null) {
-			Iterator<StyleRuleInfo> i = elementRules.iterator();
-			while (i.hasNext()) {
-				StyleRuleInfo styleRuleInfo = i.next();
+			for (StyleRuleInfo styleRuleInfo : elementRules) {
 				CSSStyleSheet styleSheet = styleRuleInfo.getStyleRule().getParentStyleSheet();
 				if (styleSheet != null && styleSheet.getDisabled()) {
 					continue;
@@ -594,9 +585,7 @@ public class StyleSheetAggregator {
 	 */
 	private Collection<CSSStyleDeclaration> putStyleDeclarations(Collection<StyleRuleInfo> elementRules,
 			Collection<CSSStyleDeclaration> styleDeclarations, HTMLElementImpl element, Set pseudoNames) {
-		Iterator<StyleRuleInfo> i = elementRules.iterator();
-		while (i.hasNext()) {
-			StyleRuleInfo styleRuleInfo = i.next();
+		for (StyleRuleInfo styleRuleInfo : elementRules) {
 			if (styleRuleInfo.isSelectorMatch(element, pseudoNames)) {
 				CSSStyleRule styleRule = styleRuleInfo.getStyleRule();
 				CSSStyleSheet styleSheet = styleRule.getParentStyleSheet();

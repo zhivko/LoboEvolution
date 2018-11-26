@@ -32,6 +32,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.loboevolution.arraylist.ArrayUtilities;
 import org.loboevolution.request.UserAgentImpl;
 import com.loboevolution.store.SQLiteCommon;
 
@@ -123,7 +124,7 @@ public class GeneralSettings implements Serializable {
 			logger.error(e);
 		}
 		
-		if(urls.isEmpty()) {
+		if(ArrayUtilities.isBlank(urls)) {
 			urls.add("");
 		}
 		

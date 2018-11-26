@@ -28,6 +28,8 @@ import java.util.Collection;
 import java.util.EventListener;
 import java.util.EventObject;
 
+import org.loboevolution.arraylist.ArrayUtilities;
+
 /**
  * The Class EventDispatch2.
  *
@@ -90,7 +92,7 @@ public abstract class EventDispatch2 {
 		EventListener[] larray;
 		synchronized (this) {
 			Collection<EventListener> listeners = this.listeners;
-			if (listeners == null || listeners.isEmpty()) {
+			if (ArrayUtilities.isBlank(listeners)) {
 				return false;
 			}
 			larray = this.listeners.toArray(EMPTY_ARRAY);

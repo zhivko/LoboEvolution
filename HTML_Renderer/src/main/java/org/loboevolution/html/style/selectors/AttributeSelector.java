@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import org.loboevolution.html.domimpl.DOMNodeImpl;
 import org.loboevolution.html.info.SelectorInfo;
 import org.loboevolution.util.Nodes;
+import org.loboevolution.util.Strings;
 import org.w3c.dom.Attr;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -316,7 +317,7 @@ public class AttributeSelector {
 				return false;
 			case Node.TEXT_NODE:
 				String data = child.getNodeName();
-				if (data != null && !data.isEmpty()) {
+				if (Strings.isNotBlank(data)) {
 					return false;
 				}
 				break;

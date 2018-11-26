@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -133,9 +132,7 @@ public final class RequestEngine {
 	public String getCookie(URL url) {
 		List<Cookie> cookies = CookieStore.getCookies(url.getHost(), url.getPath());
 		StringBuilder cookieText = new StringBuilder();
-		Iterator<Cookie> i = cookies.iterator();
-		while (i.hasNext()) {
-			Cookie cookie = (Cookie) i.next();
+		for (Cookie cookie : cookies) {
 			cookieText.append(cookie.getName());
 			cookieText.append('=');
 			cookieText.append(cookie.getValue());
@@ -196,17 +193,14 @@ public final class RequestEngine {
 		rhToDelete.cancel();
 		List<RequestInfo> handlersToCancel = new ArrayList<RequestInfo>();
 		synchronized (this.processingRequests) {
-			Iterator<RequestInfo> ri = this.processingRequests.iterator();
-			while (ri.hasNext()) {
-				RequestInfo rinfo = ri.next();
+			for (RequestInfo rinfo : processingRequests) {
 				if (rinfo.getRequestHandler() == rhToDelete) {
 					handlersToCancel.add(rinfo);
 				}
 			}
 		}
-		Iterator<RequestInfo> ri2 = handlersToCancel.iterator();
-		while (ri2.hasNext()) {
-			RequestInfo rinfo = ri2.next();
+		
+		for (RequestInfo rinfo : handlersToCancel) {
 			rinfo.abort();
 		}
 	}

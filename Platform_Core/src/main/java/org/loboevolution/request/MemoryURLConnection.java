@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.loboevolution.arraylist.ArrayUtilities;
 import org.loboevolution.http.NameValuePair;
 
 /**
@@ -133,7 +134,7 @@ public class MemoryURLConnection extends URLConnection {
 			return null;
 		}
 		List hvalues = this.headersMap.get(name.toLowerCase());
-		if (hvalues == null || hvalues.isEmpty()) {
+		if(ArrayUtilities.isBlank(hvalues)) {
 			return null;
 		}
 		return (String) hvalues.get(0);

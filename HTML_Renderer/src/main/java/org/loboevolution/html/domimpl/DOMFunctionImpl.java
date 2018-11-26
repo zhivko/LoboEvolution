@@ -22,7 +22,6 @@ package org.loboevolution.html.domimpl;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import org.loboevolution.html.HtmlEventProperties;
@@ -266,9 +265,8 @@ public abstract class DOMFunctionImpl extends DOMNodeImpl implements HtmlJsAttri
 	}
 	
 	public boolean queryCommandEnabled(String commandId) {
-		Iterator<String> it = EXECUTE_CMDS.iterator();
-		while (it.hasNext()) {
-			if (commandId.equalsIgnoreCase(it.next())) {
+		for (String cmd : EXECUTE_CMDS) {
+			if (commandId.equalsIgnoreCase(cmd)) {
 				return true;
 			}
 		}
@@ -276,13 +274,7 @@ public abstract class DOMFunctionImpl extends DOMNodeImpl implements HtmlJsAttri
 	}
 
 	public boolean queryCommandSupported(String commandId) {
-		Iterator<String> it = EXECUTE_CMDS.iterator();
-		while (it.hasNext()) {
-			if (commandId.equalsIgnoreCase(it.next())) {
-				return true;
-			}
-		}
-		return false;
+		return queryCommandEnabled(commandId);
 	}
 
 	public Element querySelector(String selectors) {

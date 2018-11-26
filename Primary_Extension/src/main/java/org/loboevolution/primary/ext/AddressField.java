@@ -31,6 +31,8 @@ import javax.swing.JComboBox;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.loboevolution.arraylist.ArrayUtilities;
+
 /**
  * The Class AddressField.
  */
@@ -163,9 +165,7 @@ public class AddressField extends JComboBox<String> {
 			JComboBox<String> urlComboBox = this;
 			urlComboBox.removeAllItems();
 			Collection<String> recentUrls = this.componentSource.getRecentLocations(30);
-			Iterator<String> i = recentUrls.iterator();
-			while (i.hasNext()) {
-				String matchUrl = i.next();
+			for (String matchUrl : recentUrls) {
 				urlComboBox.addItem(matchUrl);
 			}
 			this.setText(comboBoxText);
@@ -192,7 +192,7 @@ public class AddressField extends JComboBox<String> {
 		if (validPopupChar(releasedChar)) {
 			String urlText = urlComboBox.getText();
 			List<String> headMatches = this.componentSource.getPotentialMatches(urlText);
-			if (headMatches.isEmpty()) {
+			if(ArrayUtilities.isBlank(headMatches)) {
 				if (urlComboBox.isPopupVisible()) {
 					urlComboBox.hidePopup();
 				}

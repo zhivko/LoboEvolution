@@ -107,9 +107,7 @@ public class RBlockLine {
 		Collection<RFloatInfo> pfs = rBlockView.getPendingFloats();
 		if (pfs != null) {
 			rBlockView.setPendingFloats(null);
-			Iterator<RFloatInfo> i = pfs.iterator();
-			while (i.hasNext()) {
-				RFloatInfo pf = (RFloatInfo) i.next();
+			for (RFloatInfo pf : pfs) {
 				rBlockView.placeFloat(pf.getRenderable(), yAfterLine, pf.isLeftFloat());
 			}
 		}

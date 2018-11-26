@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 
+import org.loboevolution.arraylist.ArrayUtilities;
 import org.loboevolution.html.renderer.BoundableRenderable;
 import org.loboevolution.html.renderer.PositionedRenderable;
 import org.loboevolution.html.renderertable.RTableCell;
@@ -194,11 +195,8 @@ public class TableMouse {
 	
 	
 	private boolean positionedRenderables(String evt, MouseEvent event, int x, int y) {
-		Collection<PositionedRenderable> prs = this.positionedRenderables;
-		if (prs != null) {
-			Iterator<PositionedRenderable> i = prs.iterator();
-			while (i.hasNext()) {
-				PositionedRenderable pr = i.next();
+		if (ArrayUtilities.isNotBlank(this.positionedRenderables)) {
+			for (PositionedRenderable pr : this.positionedRenderables) {
 				BoundableRenderable r = pr.getRenderable();
 				Rectangle bounds = r.getBounds();
 				if (bounds.contains(x, y)) {

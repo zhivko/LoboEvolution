@@ -20,6 +20,7 @@
  */
 package org.loboevolution.arraylist;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -48,5 +49,13 @@ public class ArrayUtilities {
 	 */
 	public static Iterator iterator(Object[] array, int offset, int length) {
 		return new ArrayIterator(array, offset, length);
+	}
+	
+	public static boolean isBlank(Collection<?> collection) {
+		return (collection == null || collection.isEmpty());
+	}
+	
+	public static boolean isNotBlank(Collection<?> collection) {
+		return (collection != null && !collection.isEmpty());
 	}
 }

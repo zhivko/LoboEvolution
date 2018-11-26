@@ -316,9 +316,7 @@ public class RBlockViewport extends BaseRCollection implements HtmlAttributeProp
 		    final SortedSet<PositionedRenderable> posRenderables = this.positionedRenderables;
 		    if (posRenderables != null) {
 		      final boolean isFloatLimit = this.isFloatLimitImpl();
-		      final Iterator<PositionedRenderable> i = posRenderables.iterator();
-		      while (i.hasNext()) {
-		        final PositionedRenderable pr = i.next();
+		      for (PositionedRenderable pr : posRenderables) {
 		        final BoundableRenderable br = pr.getRenderable();
 		        if ((br.getX() + br.getWidth()) > this.getMaxX()) {
 		          this.setMaxX(br.getX() + br.getWidth());
@@ -424,52 +422,44 @@ public class RBlockViewport extends BaseRCollection implements HtmlAttributeProp
 	 *            the padding insets
 	 */
 	public void alignY(final int alignYPercent, final int canvasHeight, final Insets paddingInsets) {
-	    final int prevMaxY = this.maxY;
-	    if (alignYPercent > 0) {
-	      final int availContentHeight = canvasHeight - paddingInsets.top - paddingInsets.bottom;
-	      final int usedHeight = this.maxY - paddingInsets.top;
-	      final int difference = availContentHeight - usedHeight;
-	      if (difference > 0) {
-	        final int shift = (difference * alignYPercent) / 100;
-	        final List<BoundableRenderable> rlist = this.getSeqRenderables();
-	        if (rlist != null) {
-	          // Try sequential renderables first.
-	          final Iterator<BoundableRenderable> renderables = rlist.iterator();
-	          while (renderables.hasNext()) {
-	            final Object r = renderables.next();
-	            if (r instanceof BoundableRenderable) {
-	              final BoundableRenderable line = (BoundableRenderable) r;
-	              final int newY = line.getY() + shift;
-	              line.setY(newY);
-	              if ((newY + line.getHeight()) > this.maxY) {
-	                this.maxY = newY + line.getHeight();
-	              }
-	            }
-	          }
-	        }
+		final int prevMaxY = this.maxY;
+		if (alignYPercent > 0) {
+			final int availContentHeight = canvasHeight - paddingInsets.top - paddingInsets.bottom;
+			final int usedHeight = this.maxY - paddingInsets.top;
+			final int difference = availContentHeight - usedHeight;
+			if (difference > 0) {
+				final int shift = (difference * alignYPercent) / 100;
+				final List<BoundableRenderable> rlist = this.getSeqRenderables();
+				if (rlist != null) {
+					for (BoundableRenderable line : rlist) {
+						final int newY = line.getY() + shift;
+						line.setY(newY);
+						if ((newY + line.getHeight()) > this.maxY) {
+							this.maxY = newY + line.getHeight();
+						}
+					}
+				}
 
-	        // Now other renderables, but only those that can be
-	        // vertically aligned
-	        final Set<PositionedRenderable> others = this.positionedRenderables;
-	        if (others != null) {
-	          final Iterator<PositionedRenderable> i2 = others.iterator();
-	          while (i2.hasNext()) {
-	            final PositionedRenderable pr = i2.next();
-	            if (pr.isVerticalAlignable()) {
-	              final BoundableRenderable br = pr.getRenderable();
-	              final int newY = br.getY() + shift;
-	              br.setY(newY);
-	              if ((newY + br.getHeight()) > this.maxY) {
-	                this.maxY = newY + br.getHeight();
-	              }
-	            }
-	          }
-	        }
-	      }
-	    }
-	    if (prevMaxY != this.maxY) {
-	      this.height += (this.maxY - prevMaxY);
-	    }
+				// Now other renderables, but only those that can be
+				// vertically aligned
+				final Set<PositionedRenderable> others = this.positionedRenderables;
+				if (others != null) {
+					for (PositionedRenderable pr : others) {
+						if (pr.isVerticalAlignable()) {
+							final BoundableRenderable br = pr.getRenderable();
+							final int newY = br.getY() + shift;
+							br.setY(newY);
+							if ((newY + br.getHeight()) > this.maxY) {
+								this.maxY = newY + br.getHeight();
+							}
+						}
+					}
+				}
+			}
+		}
+		if (prevMaxY != this.maxY) {
+			this.height += (this.maxY - prevMaxY);
+		}
 	}
 
 	/**
@@ -943,15 +933,12 @@ public class RBlockViewport extends BaseRCollection implements HtmlAttributeProp
 			Range range = MarkupUtilities.findRenderables(array, clipBounds, true);
 			baseIterator = ArrayUtilities.iterator(array, range.getOffset(), range.getLength());
 		}
-		SortedSet<?> others = this.positionedRenderables;
-		if (others == null || others.isEmpty()) {
+		SortedSet<PositionedRenderable> others = this.positionedRenderables;
+		if (ArrayUtilities.isBlank(others)) {
 			return baseIterator;
 		} else {
 			List<PositionedRenderable> matches = new ArrayList<PositionedRenderable>();
-			// ArrayList "matches" keeps the order from "others".
-			Iterator<?> i = others.iterator();
-			while (i.hasNext()) {
-				PositionedRenderable pr = (PositionedRenderable) i.next();
+			for (PositionedRenderable pr : others) {
 				Object r = pr.getRenderable();
 				if (r instanceof BoundableRenderable) {
 					BoundableRenderable br = (BoundableRenderable) r;
@@ -1708,7 +1695,7 @@ public class RBlockViewport extends BaseRCollection implements HtmlAttributeProp
 
 	public void positionDelayed() {
 		final Collection<DelayedPair> delayedPairs = container.getDelayedPairs();
-		if (delayedPairs != null && !delayedPairs.isEmpty()) {
+		if(ArrayUtilities.isNotBlank(delayedPairs)) {
 			// Add positioned renderables that belong here
 			final Iterator<DelayedPair> i = delayedPairs.iterator();
 			while (i.hasNext()) {

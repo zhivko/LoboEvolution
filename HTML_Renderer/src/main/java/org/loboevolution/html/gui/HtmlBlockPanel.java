@@ -59,6 +59,7 @@ import javax.swing.SwingUtilities;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.loboevolution.arraylist.ArrayUtilities;
 import org.loboevolution.html.HtmlRendererContext;
 import org.loboevolution.html.dombl.ModelNode;
 import org.loboevolution.html.dombl.UINode;
@@ -841,10 +842,8 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
 			if (topLayout) {
 				this.revalidatePanel();
 			} else {
-				if (repainters != null) {
-					Iterator<RElement> i = repainters.iterator();
-					while (i.hasNext()) {
-						RElement element = i.next();
+				if (ArrayUtilities.isNotBlank(repainters)) {
+					for (RElement element : repainters) {
 						element.repaint();
 					}
 				}
@@ -927,9 +926,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
 				}
 			}
 			// Add components in set that were not previously children.
-			Iterator<Component> wsi = workingSet.iterator();
-			while (wsi.hasNext()) {
-				Component component = wsi.next();
+			for (Component component : workingSet) {
 				this.add(component);
 			}
 		}

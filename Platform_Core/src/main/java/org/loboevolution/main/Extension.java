@@ -37,6 +37,7 @@ import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.loboevolution.arraylist.ArrayUtilities;
 import org.loboevolution.clientlet.Clientlet;
 import org.loboevolution.clientlet.ClientletRequest;
 import org.loboevolution.clientlet.ClientletResponse;
@@ -665,7 +666,7 @@ public class Extension implements Comparable<Object>, NavigatorExtensionContext 
 			NavigationListener[] listeners;
 			Collection<NavigationListener> nv = this.navigationListeners;
 			synchronized (this) {
-				if (nv.isEmpty()) {
+				if(ArrayUtilities.isBlank(nv)) {
 					return;
 				}
 				listeners = nv.toArray(NavigationListener.EMPTY_ARRAY);
@@ -697,7 +698,7 @@ public class Extension implements Comparable<Object>, NavigatorExtensionContext 
 			NavigationListener[] listeners;
 			Collection<NavigationListener> nv = this.navigationListeners;
 			synchronized (this) {
-				if (nv.isEmpty()) {
+				if(ArrayUtilities.isBlank(nv)) {
 					return;
 				}
 				listeners = nv.toArray(NavigationListener.EMPTY_ARRAY);
@@ -730,7 +731,7 @@ public class Extension implements Comparable<Object>, NavigatorExtensionContext 
 			NavigationListener[] listeners;
 			Collection<NavigationListener> nv = this.navigationListeners;
 			synchronized (this) {
-				if (nv.isEmpty()) {
+				if(ArrayUtilities.isBlank(nv)) {
 					return;
 				}
 				listeners = nv.toArray(NavigationListener.EMPTY_ARRAY);
@@ -750,8 +751,7 @@ public class Extension implements Comparable<Object>, NavigatorExtensionContext 
 	 *            the connection
 	 * @return the URL connection
 	 */
-	public URLConnection dispatchPreConnection(URLConnection connection) {
-		// Should not be public
+	protected URLConnection dispatchPreConnection(URLConnection connection) {
 		Thread currentThread = Thread.currentThread();
 		ClassLoader prevClassLoader = currentThread.getContextClassLoader();
 		ClassLoader loader = this.classLoader;
@@ -762,7 +762,7 @@ public class Extension implements Comparable<Object>, NavigatorExtensionContext 
 			ConnectionProcessor[] processors;
 			Collection<ConnectionProcessor> cp = this.connectionProcessors;
 			synchronized (this) {
-				if (cp.isEmpty()) {
+				if(ArrayUtilities.isBlank(cp)) {
 					return connection;
 				}
 				processors = cp.toArray(ConnectionProcessor.EMPTY_ARRAY);

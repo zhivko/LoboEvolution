@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.loboevolution.arraylist.ArrayUtilities;
 import org.loboevolution.font.LAFSettings;
 import org.loboevolution.html.FormInput;
 import org.loboevolution.html.dombl.UINode;
@@ -113,8 +114,6 @@ public class HTMLElementImpl extends DOMElementImpl implements HTMLElement, CSSP
 	 *            the deep
 	 */
 	protected final void forgetStyle(boolean deep) {
-		// TODO: OPTIMIZATION: If we had a ComputedStyle map in
-		// window (Mozilla model) the map could be cleared in one shot.
 		synchronized (this) {
 			this.currentStyleDeclarationState = null;
 			this.computedStyles = null;
@@ -122,10 +121,8 @@ public class HTMLElementImpl extends DOMElementImpl implements HTMLElement, CSSP
 			this.hasHoverStyleByElement = null;
 			if (deep) {
 				ArrayList<Node> nl = this.nodeList;
-				if (nl != null) {
-					Iterator<Node> i = nl.iterator();
-					while (i.hasNext()) {
-						Object node = i.next();
+				if (ArrayUtilities.isNotBlank(nl)) {
+					for (Node node : nl) {
 						if (node instanceof HTMLElementImpl) {
 							((HTMLElementImpl) node).forgetStyle(deep);
 						}
@@ -412,12 +409,9 @@ public class HTMLElementImpl extends DOMElementImpl implements HTMLElement, CSSP
 			String[] classNameArray = Strings.split(classNames);
 			for (int i = classNameArray.length; --i >= 0;) {
 				String className = classNameArray[i];
-				Collection<CSSStyleDeclaration> sds = this.findStyleDeclarations(elementName, id, className,
-						pseudoNames);
-				if (sds != null) {
-					Iterator<CSSStyleDeclaration> sdsi = sds.iterator();
-					while (sdsi.hasNext()) {
-						CSSStyleDeclaration sd = sdsi.next();
+				Collection<CSSStyleDeclaration> sds = this.findStyleDeclarations(elementName, id, className, pseudoNames);
+				if (ArrayUtilities.isNotBlank(sds)) {
+					for (CSSStyleDeclaration sd : sds) {
 						if (style == null) {
 							style = new ComputedCSSProperties(this);
 						}
@@ -429,10 +423,8 @@ public class HTMLElementImpl extends DOMElementImpl implements HTMLElement, CSSP
 			String id = this.getId();
 			String elementName = this.getTagName();
 			Collection<CSSStyleDeclaration> sds = this.findStyleDeclarations(elementName, id, null, pseudoNames);
-			if (sds != null) {
-				Iterator<CSSStyleDeclaration> sdsi = sds.iterator();
-				while (sdsi.hasNext()) {
-					CSSStyleDeclaration sd = sdsi.next();
+			if (ArrayUtilities.isNotBlank(sds)) {
+				for (CSSStyleDeclaration sd : sds) {
 					if (style == null) {
 						style = new ComputedCSSProperties(this);
 					}
@@ -744,7 +736,7 @@ public class HTMLElementImpl extends DOMElementImpl implements HTMLElement, CSSP
 			}
 		}
 		ArrayList<Node> nl = this.nodeList;
-		if (nl == null || nl.isEmpty()) {
+		if(ArrayUtilities.isBlank(nl)) {
 			buffer.append("/>");
 			return;
 		}

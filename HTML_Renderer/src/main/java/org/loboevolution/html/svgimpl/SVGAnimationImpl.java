@@ -22,6 +22,7 @@ package org.loboevolution.html.svgimpl;
 
 import java.util.ArrayList;
 
+import org.loboevolution.arraylist.ArrayUtilities;
 import org.loboevolution.html.HtmlAttributeProperties;
 import org.loboevolution.html.smilimpl.TimeImpl;
 import org.loboevolution.html.smilimpl.TimeListImpl;
@@ -90,7 +91,7 @@ public class SVGAnimationImpl extends SVGSVGElementImpl implements SMILAnimation
 			}
 		}
 		
-		if (beginTimeList.isEmpty()) {
+		if(ArrayUtilities.isNotBlank(beginTimeList)) {
 			beginTimeList.add(new TimeImpl("0"));
 		}
 		return new TimeListImpl(beginTimeList);

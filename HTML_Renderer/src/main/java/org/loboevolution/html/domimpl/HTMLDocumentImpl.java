@@ -42,6 +42,7 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.loboevolution.arraylist.ArrayUtilities;
 import org.loboevolution.html.HtmlRendererContext;
 import org.loboevolution.html.dombl.DocumentNotificationListener;
 import org.loboevolution.html.dombl.ImageEvent;
@@ -79,6 +80,7 @@ import org.loboevolution.w3c.html.HTMLDocument;
 import org.loboevolution.w3c.html.HTMLElement;
 import org.loboevolution.w3c.html.HTMLHeadElement;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.css.CSSStyleSheet;
 import org.w3c.dom.stylesheets.StyleSheetList;
@@ -519,11 +521,9 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 			this.styleSheets.add(ss);
 			this.styleSheetAggregator = null;
 			this.forgetRenderState();
-			ArrayList<?> nl = this.nodeList;
-			if (nl != null) {
-				Iterator<?> i = nl.iterator();
-				while (i.hasNext()) {
-					Object node = i.next();
+			ArrayList<Node> nl = this.nodeList;
+			if (ArrayUtilities.isNotBlank(nl)) {
+				for (Node node : nl) {
 					if (node instanceof HTMLElementImpl) {
 						((HTMLElementImpl) node).forgetStyle(true);
 					}
@@ -544,11 +544,9 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 			synchronized (this.getTreeLock()) {
 				this.styleSheetAggregator = null;
 				this.forgetRenderState();
-				ArrayList<?> nl = this.nodeList;
-				if (nl != null) {
-					Iterator<?> i = nl.iterator();
-					while (i.hasNext()) {
-						Object node = i.next();
+				ArrayList<Node> nl = this.nodeList;
+				if (ArrayUtilities.isNotBlank(nl)) {
+					for (Node node : nl) {
 						if (node instanceof HTMLElementImpl) {
 							((HTMLElementImpl) node).forgetStyle(true);
 						}

@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -240,9 +239,7 @@ public class LRUCache implements java.io.Serializable {
 	 */
 	public List<EntryInfo> getEntryInfoList() {
 		List<EntryInfo> list = new ArrayList<EntryInfo>();
-		Iterator<OrderedValue> i = this.cacheMap.values().iterator();
-		while (i.hasNext()) {
-			OrderedValue ov = i.next();
+		for (OrderedValue ov : this.cacheMap.values()) {
 			Object value = ov.getValue();
 			Class<?> vc = value == null ? null : value.getClass();
 			list.add(new EntryInfo(vc, ov.getApproximateSize()));

@@ -25,7 +25,6 @@ package org.loboevolution.http;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.loboevolution.util.Strings;
@@ -368,9 +367,7 @@ public class Domains {
 	 * @return true, if successful
 	 */
 	public static boolean endsWithGTLD(String host) {
-		Iterator<String> i = gTLDs.iterator();
-		while (i.hasNext()) {
-			String ending = i.next();
+		for (String ending : gTLDs) {
 			if (host.endsWith(ending)) {
 				return true;
 			}

@@ -31,6 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.loboevolution.arraylist.ArrayUtilities;
 import org.loboevolution.html.style.HtmlValues;
 import org.loboevolution.util.Nodes;
 import org.loboevolution.util.Objects;
@@ -522,10 +523,8 @@ public class DOMElementImpl extends DOMFunctionImpl implements Element {
 		List<Object> descendents = new LinkedList<Object>();
 		synchronized (this.getTreeLock()) {
 			ArrayList<Node> nl = this.nodeList;
-			if (nl != null) {
-				Iterator<Node> i = nl.iterator();
-				while (i.hasNext()) {
-					Object child = i.next();
+			if (ArrayUtilities.isNotBlank(nl)) {
+				for (Node child : nl) {
 					if (child instanceof Element) {
 						Element childElement = (Element) child;
 						if (matchesAll || isTagName(childElement, name)) {
@@ -870,12 +869,10 @@ public class DOMElementImpl extends DOMFunctionImpl implements Element {
 	 */
 	protected String getRawInnerText(boolean includeComment) {
 		synchronized (this.getTreeLock()) {
+			StringBuilder sb = null;
 			ArrayList<Node> nl = this.nodeList;
-			if (nl != null) {
-				Iterator<Node> i = nl.iterator();
-				StringBuilder sb = null;
-				while (i.hasNext()) {
-					Object node = i.next();
+			if (ArrayUtilities.isNotBlank(nl)) {
+				for (Node node : nl) {
 					if (node instanceof Text) {
 						Text tn = (Text) node;
 						String txt = tn.getNodeValue();

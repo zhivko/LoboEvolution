@@ -176,10 +176,8 @@ public class RBlockText {
 			int nextY = emptyLine ? cleary : liney + line.height;
 			RBlockLine bLine = new RBlockLine();
 			bLine.addLine(renderable.getModelNode(), rBlockView, line, nextY);
-			Collection<?> renderables = oe.getRenderables();
-			Iterator<?> i = renderables.iterator();
-			while (i.hasNext()) {
-				Renderable r = (Renderable) i.next();
+			Collection<Renderable> renderables = oe.getRenderables();
+			for (Renderable r : renderables) {
 				RBlockLine rLine = new RBlockLine();
 				rLine.addRenderableToLine(r, rBlockView);
 			}

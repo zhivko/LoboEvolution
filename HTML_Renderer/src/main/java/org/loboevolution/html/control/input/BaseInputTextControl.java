@@ -39,6 +39,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 
 import org.apache.logging.log4j.util.Strings;
+import org.loboevolution.arraylist.ArrayUtilities;
 import org.loboevolution.font.LAFSettings;
 import org.loboevolution.html.control.RUIControl;
 import org.loboevolution.html.domimpl.DOMElementImpl;
@@ -128,11 +129,11 @@ public abstract class BaseInputTextControl extends BaseInputControl {
 	
 	private List<String> autocomplete(String id, String name, String type) {
         List<String> list = autocomplete(id);
-        if(!list.isEmpty()) return list;
+        if(ArrayUtilities.isNotBlank(list)) return list;
         list = autocomplete(name);
-        if(!list.isEmpty()) return list;
+        if(ArrayUtilities.isNotBlank(list)) return list;
         list = autocomplete(type);
-        if(!list.isEmpty()) return list;
+        if(ArrayUtilities.isNotBlank(list)) return list;
         return new ArrayList<String>();
     }
 	
