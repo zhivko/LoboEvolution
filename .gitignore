@@ -1,3 +1,12 @@
 .metadata/
 .recommenders/
 */bin/*
+parser/.gitignore
+Testing/.gitignore
+Primary_Extension/.gitignore
+Platform_Public_API/.gitignore
+Platform_Core/.gitignore
+IzPack_RegistryPanel/.gitignore
+HTML_Renderer/.gitignore
+Common/.gitignore
+LoboApi/.gitignore

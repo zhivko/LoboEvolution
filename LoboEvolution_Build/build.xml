@@ -34,7 +34,7 @@
 		</zip>
 	</target>
 
-	<target name="directory_structure" depends="cobra_no_commons,primary_extension,lobo_jar,public_jar">
+	<target name="directory_structure" depends="cobra_no_commons,primary_extension,lobo_jar,public_jar,lobo-api">
 		<mkdir dir="${lobo.dir}" />
 		<delete>
 			<fileset dir="${lobo.dir}">
@@ -49,6 +49,7 @@
 			<fileset dir="LoboEvolution_Build/ext" includes="*.jar" />
 			<fileset dir="${build.dir}" includes="cobra-no-commons.jar" />
 			<fileset dir="${build.dir}" includes="primary.jar" />
+			<fileset dir="${build.dir}" includes="lobo-api.jar" />
 		</copy>
 		<copy todir="${lobo.dir}/storage">
 			<fileset dir="LoboEvolution_Build/storage" includes="*.sql" />
@@ -62,6 +63,10 @@
 		<jar destfile="${build.dir}/cobra-no-commons.jar" basedir="HTML_Renderer/bin/" includes="**/*.class,**/*.xml,**/*.xamj,**/.xami,**/*.gif,**/*.png,**/*.jpg" />
 		<jar destfile="${build.dir}/cobra-no-commons.jar" basedir="parser/bin/" includes="**/*.class,**/*.xml,**/*.xamj,**/.xami,**/*.gif,**/*.png,**/*.jpg,**/*.properties" update="true" />
 		<jar destfile="${build.dir}/cobra-no-commons.jar" basedir="LoboEvolution_Build/" includes="log4j2.xml" update="true" />
+	</target>
+	
+	<target name="lobo-api" depends="common_classfiles">
+		<jar destfile="${build.dir}/lobo-api.jar" basedir="LoboApi/bin/" includes="**/*.class,**/*.xml,**/*.xamj,**/.xami,**/*.gif,**/*.png,**/*.jpg" />
 	</target>
 
 	<target name="primary_extension" depends="primary_extension_classfiles">
@@ -86,7 +91,7 @@
 		<jar destfile="${build.dir}/lobo.jar" basedir="Platform_Core/bin/" includes="**/*.class">
 			<manifest>
 				<attribute name="Main-Class" value="org.loboevolution.main.EntryPoint" />
-				<attribute name="Class-Path" value="lobo-pub.jar ./ext/log4j-core-2.8.1.jar ./ext/log4j-api-2.8.1.jar ./ext/JTattoo-1.6.11.jar ./ext/sqlite-jdbc-3.21.0.jar" />
+				<attribute name="Class-Path" value="lobo-pub.jar ./ext/log4j-core-2.11.2.jar ./ext/log4j-api-2.11.2.jar ./ext/lobo-api.jar ./ext/sqlite-jdbc-3.27.2.1.jar" />
 			</manifest>
 		</jar>
 		<jar destfile="${build.dir}/lobo.jar" basedir="Common/bin/" includes="**/*.class" update="true" />
@@ -99,7 +104,7 @@
 	</target>
 
     <target name="common_classfiles" depends="">
-        <javac srcdir="Common/bin/" source="1.8" destdir="Common/bin/" classpath="LoboEvolution_Build/ext/log4j-api-2.8.1.jar" debug="on" includeantruntime="false" />
+        <javac srcdir="Common/bin/" source="1.8" destdir="Common/bin/" classpath="LoboEvolution_Build/ext/log4j-api-2.11.2.jar" debug="on" includeantruntime="false" />
     </target>
 
 	<target name="html_classfiles" depends="common_classfiles,parser_classfiles">

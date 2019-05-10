@@ -2,17 +2,21 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/main/resources"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/Common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/HTML_Renderer"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Platform_Core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Platform_Public_API"/>
 	<classpathentry kind="lib" path="/LoboEvolution_Build/ext/PDFrenderer.jar"/>
 	<classpathentry kind="lib" path="/LoboEvolution_Build/ext/rsyntaxtextarea.jar"/>
-	<classpathentry kind="lib" path="/LoboEvolution_Build/ext/log4j-api-2.8.1.jar"/>
-	<classpathentry kind="lib" path="/LoboEvolution_Build/ext/log4j-core-2.8.1.jar"/>
 	<classpathentry kind="lib" path="/LoboEvolution_Build/ext/batik-all-1.8.jar"/>
-	<classpathentry kind="lib" path="/LoboEvolution_Build/ext/sqlite-jdbc-3.21.0.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/parser"/>
+	<classpathentry kind="lib" path="/LoboEvolution_Build/ext/sqlite-jdbc-3.27.2.1.jar"/>
+	<classpathentry kind="lib" path="/LoboEvolution_Build/ext/log4j-api-2.11.2.jar"/>
+	<classpathentry kind="lib" path="/LoboEvolution_Build/ext/log4j-core-2.11.2.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/LoboApi"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
