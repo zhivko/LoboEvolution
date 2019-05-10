@@ -89,7 +89,7 @@ public class HTMLHeadingElementImpl extends HTMLAbstractUIElement implements HTM
 	 * StringBuilder )
 	 */
 	@Override
-	protected void appendInnerTextImpl(StringBuilder buffer) {
+	protected void appendInnerTextImpl(StringBuffer buffer) {
 		int length = buffer.length();
 		int lineBreaks;
 		if (length == 0) {

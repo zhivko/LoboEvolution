@@ -53,6 +53,7 @@ import org.loboevolution.http.HttpRequest;
 import org.loboevolution.http.UserAgentContext;
 import org.loboevolution.w3c.events.Event;
 import org.loboevolution.w3c.html.DOMElementMap;
+import org.loboevolution.w3c.html.HTMLCollection;
 import org.loboevolution.w3c.html.HTMLDocument;
 import org.loboevolution.w3c.html.HTMLElement;
 import org.loboevolution.w3c.xpath.XPathExpression;
@@ -81,15 +82,15 @@ public abstract class DOMFunctionImpl extends DOMNodeImpl implements HtmlJsAttri
 			"justifyLeft", "justifyRight", "outdent", "paste", "redo", "removeFormat", "selectAll", "strikeThrough",
 			"subscript", "superscript", "underline", "undo", "unlink", "useCSS", "styleWithCSS" });
 
-	public NodeList getElementsByClassName(String classNames) {
-		return new HTMLCollectionImpl(this,new ClassNameFilter(classNames)).nodeList();
+	public HTMLCollection getElementsByClassName(String classNames) {
+		return new HTMLCollectionImpl(this, new ClassNameFilter(classNames));
 	}
 
 	public NodeList getElementsByTagName(String tagname) {
 		if ("*".equals(tagname)) {
-			return new HTMLCollectionImpl(this,new ElementFilter()).nodeList();
+			return getNodeList(new ElementFilter());
 		} else {
-			return new HTMLCollectionImpl(this,new TagNameFilter(tagname)).nodeList();
+			return getNodeList(new TagNameFilter(tagname));
 		}
 	}
 

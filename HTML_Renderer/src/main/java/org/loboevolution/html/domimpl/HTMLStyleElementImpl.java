@@ -29,12 +29,16 @@ package org.loboevolution.html.domimpl;
 import org.loboevolution.html.parser.HtmlParser;
 import org.loboevolution.html.style.CSSUtilities;
 import org.loboevolution.http.UserAgentContext;
+import org.loboevolution.util.Strings;
 import org.loboevolution.w3c.html.HTMLStyleElement;
 import com.gargoylesoftware.css.parser.InputSource;
+import com.gargoylesoftware.css.parser.javacc.CSS3Parser;
+
 import org.w3c.dom.UserDataHandler;
 import org.w3c.dom.css.CSSStyleSheet;
 
 import com.gargoylesoftware.css.dom.CSSStyleSheetImpl;
+import com.gargoylesoftware.css.dom.CSSStyleSheetListImpl;
 import com.gargoylesoftware.css.parser.CSSOMParser;
 
 /**
@@ -43,7 +47,7 @@ import com.gargoylesoftware.css.parser.CSSOMParser;
 public class HTMLStyleElementImpl extends HTMLElementImpl implements HTMLStyleElement {
 
 	/** The style sheet. */
-	private CSSStyleSheet styleSheet;
+	private CSSStyleSheetImpl styleSheet;
 
 	/** The disabled. */
 	private boolean disabled;
@@ -66,7 +70,7 @@ public class HTMLStyleElementImpl extends HTMLElementImpl implements HTMLStyleEl
 	@Override
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
-		CSSStyleSheet sheet = this.styleSheet;
+		CSSStyleSheetImpl sheet = this.styleSheet;
 		if (sheet != null) {
 			sheet.setDisabled(disabled);
 		}
@@ -109,33 +113,25 @@ public class HTMLStyleElementImpl extends HTMLElementImpl implements HTMLStyleEl
 		this.styleSheet = null;
 		UserAgentContext uacontext = this.getUserAgentContext();
 		if (uacontext.isInternalCSSEnabled() && CSSUtilities.matchesMedia(this.getMedia(), this.getUserAgentContext())) {
-			String text = this.getRawInnerText(true);
-			if (text != null && !"".equals(text)) {
-				HTMLDocumentImpl doc = (HTMLDocumentImpl) this.getOwnerDocument();
+			final String text = getRawInnerText(true);
+			if (Strings.isNotBlank(text)) {
+				final String processedText = CSSUtilities.preProcessCss(text);
+				final HTMLDocumentImpl doc = (HTMLDocumentImpl) getOwnerDocument();
+				final CSSOMParser parser = new CSSOMParser(new CSS3Parser());;
+				final String baseURI = doc.getBaseURI();
+				final InputSource is = CSSUtilities.getCssInputSourceForStyleSheet(processedText, baseURI);
 				try {
-					CSSOMParser parser = new CSSOMParser();
-					InputSource is = CSSUtilities.getCssInputSourceForStyleSheet(text, doc.getBaseURI());
-					CSSStyleSheet sheet = parser.parseStyleSheet(is, null);
-					if (sheet != null) {
-						doc.addStyleSheet(sheet);
-						this.styleSheet = sheet;
-						if (sheet instanceof CSSStyleSheetImpl) {
-							CSSStyleSheetImpl sheetImpl = (CSSStyleSheetImpl) sheet;
-							sheetImpl.setDisabled(disabled);
-						} else {
-							sheet.setDisabled(this.disabled);
-						}
-					}
-				} catch (Throwable err) {
-					logger.error("Unable to parse style sheet", err);
+					final CSSStyleSheetImpl sheet = parser.parseStyleSheet(is, null);
+					sheet.setOwnerNode(this);
+					sheet.setHref(baseURI);
+					doc.addStyleSheet(sheet);
+					this.styleSheet = sheet;
+					sheet.setDisabled(this.disabled);
+				} catch (final Throwable err) {
+					logger.warn("Unable to parse style sheet", err);
 				}
 			}
 		}
-	}
-
-	@Override
-	protected void appendInnerTextImpl(StringBuilder buffer) {
-		// Method not implemented
 	}
 
 	@Override
@@ -154,7 +150,7 @@ public class HTMLStyleElementImpl extends HTMLElementImpl implements HTMLStyleEl
 	 *
 	 * @return the sheet
 	 */
-	public CSSStyleSheet getSheet() {
+	public CSSStyleSheetImpl getSheet() {
 		return this.styleSheet;
 	}
 

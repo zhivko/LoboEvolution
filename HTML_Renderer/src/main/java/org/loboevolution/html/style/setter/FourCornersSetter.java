@@ -5,6 +5,8 @@ import org.loboevolution.html.style.HtmlValues;
 import org.loboevolution.util.Strings;
 import org.w3c.dom.css.CSSStyleDeclaration;
 
+import com.gargoylesoftware.css.dom.CSSStyleDeclarationImpl;
+
 public class FourCornersSetter implements SubPropertySetter {
 
 	/** The prefix. */
@@ -33,7 +35,7 @@ public class FourCornersSetter implements SubPropertySetter {
 	}
 
 	@Override
-	public void changeValue(AbstractCSSProperties properties, String newValue, CSSStyleDeclaration declaration,
+	public void changeValue(AbstractCSSProperties properties, String newValue, CSSStyleDeclarationImpl declaration,
 			boolean important) {
 		properties.setPropertyValueLCAlt(this.property, newValue, important);
 		if (Strings.isNotBlank(newValue)) {
@@ -82,7 +84,7 @@ public class FourCornersSetter implements SubPropertySetter {
 	 * @param declaration
 	 *            the declaration
 	 */
-	public void changeValue(AbstractCSSProperties properties, String newValue, CSSStyleDeclaration declaration) {
+	public void changeValue(AbstractCSSProperties properties, String newValue, CSSStyleDeclarationImpl declaration) {
 		this.changeValue(properties, newValue, declaration, true);
 	}
 }

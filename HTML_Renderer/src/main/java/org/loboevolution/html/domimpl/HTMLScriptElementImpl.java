@@ -258,17 +258,6 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
 		}
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.loboevolution.html.domimpl.DOMNodeImpl#appendInnerTextImpl(java.lang.
-	 * StringBuilder )
-	 */
-	@Override
-	protected void appendInnerTextImpl(StringBuilder buffer) {
-		// Method not implemented
-	}
 
 	@Override
 	public boolean getAsync() {

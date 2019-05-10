@@ -69,7 +69,7 @@ public class HTMLPElementImpl extends HTMLAbstractUIElement implements HTMLParag
 	 * StringBuilder )
 	 */
 	@Override
-	protected void appendInnerTextImpl(StringBuilder buffer) {
+	protected void appendInnerTextImpl(StringBuffer buffer) {
 		int length = buffer.length();
 		int lineBreaks;
 		if (length == 0) {

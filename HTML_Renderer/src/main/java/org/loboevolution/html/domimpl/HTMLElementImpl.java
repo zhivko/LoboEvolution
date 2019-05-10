@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,6 +51,7 @@ import org.loboevolution.html.style.HtmlValues;
 import org.loboevolution.html.style.LocalCSSProperties;
 import org.loboevolution.html.style.StyleSheetAggregator;
 import org.loboevolution.html.style.selectors.AttributeSelector;
+import org.loboevolution.util.Nodes;
 import org.loboevolution.util.Strings;
 import org.loboevolution.w3c.html.DOMSettableTokenList;
 import org.loboevolution.w3c.html.DOMStringMap;
@@ -60,8 +62,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSStyleDeclaration;
 
+import com.gargoylesoftware.css.dom.CSSStyleDeclarationImpl;
 import com.gargoylesoftware.css.parser.CSSOMParser;
 import com.gargoylesoftware.css.parser.InputSource;
+import com.gargoylesoftware.css.parser.javacc.CSS3Parser;
 
 /**
  * The Class HTMLElementImpl.
@@ -120,12 +124,9 @@ public class HTMLElementImpl extends DOMElementImpl implements HTMLElement, CSSP
 			this.isHoverStyle = null;
 			this.hasHoverStyleByElement = null;
 			if (deep) {
-				ArrayList<Node> nl = this.nodeList;
-				if (ArrayUtilities.isNotBlank(nl)) {
-					for (Node node : nl) {
-						if (node instanceof HTMLElementImpl) {
-							((HTMLElementImpl) node).forgetStyle(deep);
-						}
+				for (Node node : Nodes.iterable(nodeList)) {
+					if (node instanceof HTMLElementImpl) {
+						((HTMLElementImpl) node).forgetStyle(deep);
 					}
 				}
 			}
@@ -180,7 +181,6 @@ public class HTMLElementImpl extends DOMElementImpl implements HTMLElement, CSSP
 	 */
 	@Override
 	public AbstractCSSProperties getStyle() {
-
 		AbstractCSSProperties sds;
 		synchronized (this) {
 			sds = this.localStyleDeclarationState;
@@ -189,27 +189,21 @@ public class HTMLElementImpl extends DOMElementImpl implements HTMLElement, CSSP
 			}
 			sds = new LocalCSSProperties(this);
 			// Add any declarations in style attribute (last takes precedence).
-			String style = this.getAttribute(STYLE_HTML);
-
+			final String style = getAttribute("style");
 			if (Strings.isNotBlank(style)) {
-				CSSOMParser parser = new CSSOMParser();
-				InputSource inputSource = this.getCssInputSourceForDecl(style);
+				final CSSOMParser parser = new CSSOMParser(new CSS3Parser());
 				try {
-					CSSStyleDeclaration sd = parser.parseStyleDeclaration(inputSource);
-					sd.setCssText(style);
+					final CSSStyleDeclarationImpl sd = parser.parseStyleDeclaration(style);
 					sds.addStyleDeclaration(sd);
-				} catch (Exception err) {
-					String id = this.getId();
-					String withId = id == null ? "" : " with ID '" + id + "'";
-					logger.error("Unable to parse style attribute value for element " + this.getTagName() + withId
-							+ " in " + this.getDocumentURL() + ".", err);
+				} catch (final Exception err) {
+					final String id = getId();
+					final String withId = id == null ? "" : " with ID '" + id + "'";
+					logger.warn("Unable to parse style attribute value for element " + getTagName() + withId + " in "
+							+ getDocumentURL() + ".", err);
 				}
 			}
 			this.localStyleDeclarationState = sds;
-
 		}
-		// Synchronization note: Make sure getStyle() does not return multiple
-		// values.
 		return sds;
 	}
 
@@ -373,19 +367,6 @@ public class HTMLElementImpl extends DOMElementImpl implements HTMLElement, CSSP
 	}
 
 	/**
-	 * Gets the css input source for decl.
-	 *
-	 * @param text
-	 *            the text
-	 * @return the css input source for decl
-	 */
-	protected final InputSource getCssInputSourceForDecl(String text) {
-		Reader reader = new StringReader(text);
-		InputSource is = new InputSource(reader);
-		return is;
-	}
-
-	/**
 	 * Adds style sheet declarations applicable to this element. A properties
 	 * object is created if necessary when the one passed is <code>null</code>.
 	 *
@@ -395,23 +376,22 @@ public class HTMLElementImpl extends DOMElementImpl implements HTMLElement, CSSP
 	 *            the pseudo names
 	 * @return the abstract cs s2 properties
 	 */
-	protected final AbstractCSSProperties addStyleSheetDeclarations(AbstractCSSProperties style,
-			Set<String> pseudoNames) {
-		Node pn = this.parentNode;
+	protected final AbstractCSSProperties addStyleSheetDeclarations(AbstractCSSProperties style, Set<String> pseudoNames) {
+		final Node pn = this.parentNode;
 		if (pn == null) {
 			// do later
 			return style;
 		}
-		String classNames = this.getClassName();
-		if (Strings.isNotBlank(classNames)) {
-			String id = this.getId();
-			String elementName = this.getTagName();
-			String[] classNameArray = Strings.split(classNames);
+		final String classNames = getClassName();
+		if (classNames != null && classNames.length() != 0) {
+			final String id = getId();
+			final String elementName = getTagName();
+			final String[] classNameArray = Strings.split(classNames);
 			for (int i = classNameArray.length; --i >= 0;) {
-				String className = classNameArray[i];
-				Collection<CSSStyleDeclaration> sds = this.findStyleDeclarations(elementName, id, className, pseudoNames);
-				if (ArrayUtilities.isNotBlank(sds)) {
-					for (CSSStyleDeclaration sd : sds) {
+				final String className = classNameArray[i];
+				final List<CSSStyleDeclarationImpl> sds = findStyleDeclarations(elementName, id, className, pseudoNames);
+				if (sds != null) {
+					for (CSSStyleDeclarationImpl sd : sds) {
 						if (style == null) {
 							style = new ComputedCSSProperties(this);
 						}
@@ -420,11 +400,11 @@ public class HTMLElementImpl extends DOMElementImpl implements HTMLElement, CSSP
 				}
 			}
 		} else {
-			String id = this.getId();
-			String elementName = this.getTagName();
-			Collection<CSSStyleDeclaration> sds = this.findStyleDeclarations(elementName, id, null, pseudoNames);
-			if (ArrayUtilities.isNotBlank(sds)) {
-				for (CSSStyleDeclaration sd : sds) {
+			final String id = getId();
+			final String elementName = getTagName();
+			final List<CSSStyleDeclarationImpl> sds = findStyleDeclarations(elementName, id, null, pseudoNames);
+			if (sds != null) {
+				for (CSSStyleDeclarationImpl sd : sds) {
 					if (style == null) {
 						style = new ComputedCSSProperties(this);
 					}
@@ -471,18 +451,13 @@ public class HTMLElementImpl extends DOMElementImpl implements HTMLElement, CSSP
 	 *            the ancestor
 	 */
 	private void invalidateDescendentsForHoverImpl(HTMLElementImpl ancestor) {
-		ArrayList<Node> nodeList = this.nodeList;
-		if (nodeList != null) {
-			int size = nodeList.size();
-			for (int i = 0; i < size; i++) {
-				Object node = nodeList.get(i);
-				if (node instanceof HTMLElementImpl) {
-					HTMLElementImpl descendent = (HTMLElementImpl) node;
-					if (descendent.hasHoverStyle(ancestor)) {
-						descendent.informInvalid();
-					}
-					descendent.invalidateDescendentsForHoverImpl(ancestor);
+		for (Node node : Nodes.iterable(nodeList)) {
+			if (node instanceof HTMLElementImpl) {
+				final HTMLElementImpl descendent = (HTMLElementImpl) node;
+				if (descendent.hasHoverStyle(ancestor)) {
+					descendent.informInvalid();
 				}
+				descendent.invalidateDescendentsForHoverImpl(ancestor);
 			}
 		}
 	}
@@ -603,14 +578,12 @@ public class HTMLElementImpl extends DOMElementImpl implements HTMLElement, CSSP
 	 *            the pseudo names
 	 * @return the collection
 	 */
-	protected final Collection<CSSStyleDeclaration> findStyleDeclarations(String elementName, String id,
-			String className, Set<String> pseudoNames) {
-		HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+	protected final List<CSSStyleDeclarationImpl> findStyleDeclarations(String elementName, String id, String className, Set<String> pseudoNames) {
+		final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
 		if (doc == null) {
 			return null;
 		}
-
-		StyleSheetAggregator ssa = doc.getStyleSheetAggregator();
+		final StyleSheetAggregator ssa = doc.getStyleSheetAggregator();
 		return ssa.getActiveStyleDeclarations(this, elementName, id, className, pseudoNames, getAttributes());
 	}
 
@@ -671,28 +644,23 @@ public class HTMLElementImpl extends DOMElementImpl implements HTMLElement, CSSP
 	 */
 	@Override
 	public void setInnerHTML(String newHtml) {
-		HTMLDocumentImpl document = (HTMLDocumentImpl) this.document;
+		final HTMLDocumentImpl document = (HTMLDocumentImpl) this.document;
 		if (document == null) {
-			logger.error("setInnerHTML(): Element " + this + " does not belong to a document.");
+			this.warn("setInnerHTML(): Element " + this + " does not belong to a document.");
 			return;
 		}
-		HtmlParser parser = new HtmlParser(document.getUserAgentContext(), document);
-		synchronized (this) {
-			ArrayList<Node> nl = this.nodeList;
-			if (nl != null) {
-				nl.clear();
-			}
-		}
+		final HtmlParser parser = new HtmlParser(document.getUserAgentContext(), document);
+		this.nodeList.clear();
 		// Should not synchronize around parser probably.
 		try {
-			Reader reader = new StringReader(newHtml);
+			final Reader reader = new StringReader(newHtml);
 			try {
 				parser.parse(reader, this);
 			} finally {
 				reader.close();
 			}
-		} catch (Exception thrown) {
-			logger.error("setInnerHTML(): Error setting inner HTML.", thrown);
+		} catch (final Exception thrown) {
+			this.warn("setInnerHTML(): Error setting inner HTML.");
 		}
 	}
 
@@ -703,7 +671,7 @@ public class HTMLElementImpl extends DOMElementImpl implements HTMLElement, CSSP
 	 */
 	@Override
 	public String getOuterHTML() {
-		StringBuilder buffer = new StringBuilder();
+		StringBuffer buffer = new StringBuffer();
 		synchronized (this) {
 			this.appendOuterHTMLImpl(buffer);
 		}
@@ -716,32 +684,28 @@ public class HTMLElementImpl extends DOMElementImpl implements HTMLElement, CSSP
 	 * @param buffer
 	 *            the buffer
 	 */
-	public void appendOuterHTMLImpl(StringBuilder buffer) {
-		String tagName = this.getTagName();
+	protected void appendOuterHTMLImpl(StringBuffer buffer) {
+		final String tagName = getTagName();
 		buffer.append('<');
 		buffer.append(tagName);
-		Map<String, String> attributes = this.attributes;
+		final Map<String, String> attributes = this.attributes;
 		if (attributes != null) {
-			Iterator i = attributes.entrySet().iterator();
-			while (i.hasNext()) {
-				Map.Entry entry = (Map.Entry) i.next();
-				String value = (String) entry.getValue();
-				if (value != null) {
+			attributes.forEach((k, v) -> {
+				if (v != null) {
 					buffer.append(' ');
-					buffer.append(entry.getKey());
+					buffer.append(k);
 					buffer.append("=\"");
-					buffer.append(Strings.strictHtmlEncode(value, true));
+					buffer.append(Strings.strictHtmlEncode(v, true));
 					buffer.append("\"");
 				}
-			}
+			});
 		}
-		ArrayList<Node> nl = this.nodeList;
-		if(ArrayUtilities.isBlank(nl)) {
+		if (nodeList.getLength() == 0) {
 			buffer.append("/>");
 			return;
 		}
 		buffer.append('>');
-		this.appendInnerHTMLImpl(buffer);
+		appendInnerHTMLImpl(buffer);
 		buffer.append("</");
 		buffer.append(tagName);
 		buffer.append('>');

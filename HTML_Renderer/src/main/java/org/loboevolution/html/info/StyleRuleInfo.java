@@ -33,7 +33,8 @@ import org.loboevolution.html.style.selectors.ParentSelector;
 import org.loboevolution.html.style.selectors.PrecedingSelector;
 import org.loboevolution.html.style.selectors.SelectorMatcher;
 import org.loboevolution.util.Objects;
-import org.w3c.dom.css.CSSStyleRule;
+
+import com.gargoylesoftware.css.dom.CSSStyleRuleImpl;
 
 /**
  * The Class StyleRuleInfo.
@@ -44,7 +45,7 @@ public class StyleRuleInfo implements Serializable {
 	private static final long serialVersionUID = 9165715430607111555L;
 
 	/** The style rule. */
-	private transient CSSStyleRule styleRule;
+	private transient CSSStyleRuleImpl styleRule;
 
 	/** The ancestor selectors. */
 	private final List<SelectorMatcher> ancestorSelectors;
@@ -57,7 +58,7 @@ public class StyleRuleInfo implements Serializable {
 	 * @param rule
 	 *            A CSS rule.
 	 */
-	public StyleRuleInfo(List<SelectorMatcher> SelectorMatchers, CSSStyleRule rule) {
+	public StyleRuleInfo(List<SelectorMatcher> SelectorMatchers, CSSStyleRuleImpl rule) {
 		super();
 		ancestorSelectors = SelectorMatchers;
 		this.styleRule = rule;
@@ -261,7 +262,7 @@ public class StyleRuleInfo implements Serializable {
 	 *
 	 * @return the style rule
 	 */
-	public CSSStyleRule getStyleRule() {
+	public CSSStyleRuleImpl getStyleRule() {
 		return styleRule;
 	}
 
@@ -271,7 +272,7 @@ public class StyleRuleInfo implements Serializable {
 	 * @param styleRule
 	 *            the new style rule
 	 */
-	public void setStyleRule(CSSStyleRule styleRule) {
+	public void setStyleRule(CSSStyleRuleImpl styleRule) {
 		this.styleRule = styleRule;
 	}
 

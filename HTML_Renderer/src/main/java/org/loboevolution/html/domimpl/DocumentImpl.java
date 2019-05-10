@@ -30,6 +30,7 @@ import org.loboevolution.html.HtmlRendererContext;
 import org.loboevolution.html.dombl.ElementFactory;
 import org.loboevolution.html.io.WritableLineReader;
 import org.loboevolution.http.UserAgentContext;
+import org.loboevolution.util.Nodes;
 import org.loboevolution.util.Strings;
 import org.loboevolution.w3c.events.DocumentEvent;
 import org.loboevolution.w3c.xpath.XPathEvaluator;
@@ -99,17 +100,12 @@ public class DocumentImpl extends DOMFunctionImpl implements Document, DocumentE
 
 	@Override
 	public Element getDocumentElement() {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			if (ArrayUtilities.isNotBlank(nl)) {
-				for (Node node : nl) {
-					if (node instanceof Element) {
-						return (Element) node;
-					}
-				}
+		for (Node node : Nodes.iterable(this.nodeList)) {
+			if (node instanceof Element) {
+				return (Element) node;
 			}
-			return null;
 		}
+		return null;
 	}
 
 	@Override

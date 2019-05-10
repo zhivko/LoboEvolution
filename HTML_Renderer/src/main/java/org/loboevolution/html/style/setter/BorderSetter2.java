@@ -7,6 +7,8 @@ import org.loboevolution.html.style.HtmlValues;
 import org.loboevolution.util.Strings;
 import org.w3c.dom.css.CSSStyleDeclaration;
 
+import com.gargoylesoftware.css.dom.CSSStyleDeclarationImpl;
+
 public class BorderSetter2 implements SubPropertySetter {
 
 	/** The name. */
@@ -23,7 +25,7 @@ public class BorderSetter2 implements SubPropertySetter {
 	}
 	
 	@Override
-	public void changeValue(AbstractCSSProperties properties, String value, CSSStyleDeclaration declaration,
+	public void changeValue(AbstractCSSProperties properties, String value, CSSStyleDeclarationImpl declaration,
 			boolean important) {
 		properties.setPropertyValueLCAlt(this.name, value, important);
 		if (Strings.isNotBlank(value)) {
@@ -63,7 +65,7 @@ public class BorderSetter2 implements SubPropertySetter {
 	 * @param declaration
 	 *            the declaration
 	 */
-	public void changeValue(AbstractCSSProperties properties, String value, CSSStyleDeclaration declaration) {
+	public void changeValue(AbstractCSSProperties properties, String value, CSSStyleDeclarationImpl declaration) {
 		this.changeValue(properties, value, declaration, true);
 	}
 }

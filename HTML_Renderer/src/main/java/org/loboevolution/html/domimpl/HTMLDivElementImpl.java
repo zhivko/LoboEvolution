@@ -81,7 +81,7 @@ public class HTMLDivElementImpl extends HTMLAbstractUIElement implements HTMLDiv
 	 * StringBuilder )
 	 */
 	@Override
-	protected void appendInnerTextImpl(StringBuilder buffer) {
+	protected void appendInnerTextImpl(StringBuffer buffer) {
 		int length = buffer.length();
 		int lineBreaks;
 		if (length == 0) {

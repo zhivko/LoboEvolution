@@ -3,6 +3,8 @@ package org.loboevolution.html.style.setter;
 import org.loboevolution.html.style.AbstractCSSProperties;
 import org.w3c.dom.css.CSSStyleDeclaration;
 
+import com.gargoylesoftware.css.dom.CSSStyleDeclarationImpl;
+
 /**
  * The Interface SubPropertySetter.
  */
@@ -20,6 +22,6 @@ public interface SubPropertySetter {
 	 * @param important
 	 *            the important
 	 */
-	public void changeValue(AbstractCSSProperties properties, String newValue, CSSStyleDeclaration declaration,
+	public void changeValue(AbstractCSSProperties properties, String newValue, CSSStyleDeclarationImpl declaration,
 			boolean important);
 }

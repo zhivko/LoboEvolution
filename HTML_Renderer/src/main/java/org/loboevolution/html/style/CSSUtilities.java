@@ -35,9 +35,9 @@ import org.loboevolution.http.Urls;
 import org.loboevolution.http.UserAgentContext;
 import org.loboevolution.util.Strings;
 import com.gargoylesoftware.css.parser.InputSource;
-import org.w3c.dom.css.CSSStyleSheet;
 import org.w3c.dom.stylesheets.MediaList;
 
+import com.gargoylesoftware.css.dom.CSSStyleSheetImpl;
 import com.gargoylesoftware.css.parser.CSSOMParser;
 
 /**
@@ -112,7 +112,7 @@ public class CSSUtilities {
 	 * @return
 	 * @throws Exception
 	 */
-	public static CSSStyleSheet parse(String href, HTMLDocumentImpl doc) throws Exception {
+	public static CSSStyleSheetImpl parse(String href, HTMLDocumentImpl doc) throws Exception {
 		CSSOMParser parser = new CSSOMParser();
 		URL baseURL = new URL(doc.getBaseURI());
 		URL scriptURL = Urls.createURL(baseURL, href);

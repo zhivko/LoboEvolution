@@ -27,8 +27,10 @@ import org.loboevolution.html.dombl.StopVisitorException;
 import org.loboevolution.html.domfilter.NodeFilter;
 import org.loboevolution.html.renderstate.RenderState;
 import org.loboevolution.html.renderstate.TableRowRenderState;
+import org.loboevolution.util.Nodes;
 import org.loboevolution.w3c.html.HTMLCollection;
 import org.loboevolution.w3c.html.HTMLElement;
+import org.loboevolution.w3c.html.HTMLTableCellElement;
 import org.loboevolution.w3c.html.HTMLTableRowElement;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -238,36 +240,30 @@ public class HTMLTableRowElementImpl extends HTMLAbstractUIElement implements HT
 	 *             the DOM exception
 	 */
 	private HTMLElement insertCell(int index, String tagName) throws DOMException {
-		Document doc = this.document;
+		final Document doc = this.document;
 		if (doc == null) {
 			throw new DOMException(DOMException.WRONG_DOCUMENT_ERR, "Orphan element");
 		}
-		HTMLElement cellElement = (HTMLElement) doc.createElement(tagName);
-		synchronized (this.getTreeLock()) {
+		final HTMLElement cellElement = (HTMLElement) doc.createElement(tagName);
+		synchronized (this.treeLock) {
 			if (index == -1) {
-				this.appendChild(cellElement);
+				appendChild(cellElement);
 				return cellElement;
 			}
-			ArrayList<Node> nl = this.nodeList;
-			if (nl != null) {
-				int size = nl.size();
-				int trcount = 0;
-				for (int i = 0; i < size; i++) {
-					Node node = nl.get(i);
-					if (node instanceof org.loboevolution.w3c.html.HTMLTableCellElement) {
-						if (trcount == index) {
-							this.insertAt(cellElement, i);
-							return cellElement;
-						}
-						trcount++;
+
+			int trcount = 0;
+			for (Node node : Nodes.iterable(nodeList)) {
+				if (node instanceof HTMLTableCellElement) {
+					if (trcount == index) {
+						insertAt(cellElement, nodeList.indexOf(node));
+						return cellElement;
 					}
+					trcount++;
 				}
-			} else {
-				this.appendChild(cellElement);
-				return cellElement;
 			}
+			appendChild(cellElement);
+			return cellElement;
 		}
-		throw new DOMException(DOMException.INDEX_SIZE_ERR, "Index out of range");
 	}
 
 	/*
@@ -277,23 +273,15 @@ public class HTMLTableRowElementImpl extends HTMLAbstractUIElement implements HT
 	 */
 	@Override
 	public void deleteCell(int index) throws DOMException {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			if (nl != null) {
-				int size = nl.size();
-				int trcount = 0;
-				for (int i = 0; i < size; i++) {
-					Node node = nl.get(i);
-					if (node instanceof org.loboevolution.w3c.html.HTMLTableCellElement) {
-						if (trcount == index) {
-							this.removeChildAt(index);
-						}
-						trcount++;
-					}
+		int trcount = 0;
+		for (Node node : Nodes.iterable(nodeList)) {
+			if (node instanceof HTMLTableCellElement) {
+				if (trcount == index) {
+					removeChildAt(index);
 				}
+				trcount++;
 			}
 		}
-		throw new DOMException(DOMException.INDEX_SIZE_ERR, "Index out of range");
 	}
 
 	/*

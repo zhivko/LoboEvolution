@@ -27,12 +27,13 @@ import org.loboevolution.html.style.HtmlValues;
 import org.loboevolution.util.Strings;
 import org.w3c.dom.css.CSSStyleDeclaration;
 
+import com.gargoylesoftware.css.dom.CSSStyleDeclarationImpl;
 import com.gargoylesoftware.css.util.CSSProperties;
 
 public class BackgroundSetter implements SubPropertySetter, CSSProperties {
 
 	@Override
-	public void changeValue(AbstractCSSProperties properties, String newValue, CSSStyleDeclaration declaration,
+	public void changeValue(AbstractCSSProperties properties, String newValue, CSSStyleDeclarationImpl declaration,
 			boolean important) {
 		properties.setPropertyValueLCAlt(BACKGROUND, newValue, important);
 		if (Strings.isNotBlank(newValue)) {
@@ -88,7 +89,7 @@ public class BackgroundSetter implements SubPropertySetter, CSSProperties {
 	 * @param declaration
 	 *            the declaration
 	 */
-	public void changeValue(AbstractCSSProperties properties, String newValue, CSSStyleDeclaration declaration) {
+	public void changeValue(AbstractCSSProperties properties, String newValue, CSSStyleDeclarationImpl declaration) {
 		this.changeValue(properties, newValue, declaration, true);
 	}
 

@@ -239,7 +239,7 @@ public class TableMatrix implements HtmlAttributeProperties, CSSValuesProperties
 		this.cellSpacingY = cellSpacing;
 		this.tableWidthLength = TableRender.getWidthLength(this.tableElement, availWidth);
 		
-		DOMNodeListImpl captionList = new HTMLCollectionImpl(tableElement, new CaptionFilter()).nodeList();
+		DOMNodeListImpl captionList = new HTMLCollectionImpl(tableElement, new CaptionFilter()).getNodeList();
 		if (captionList != null) {
 			HTMLTableCaptionElementImpl capt = (HTMLTableCaptionElementImpl) captionList.item(0);
 			this.captionElement = capt;

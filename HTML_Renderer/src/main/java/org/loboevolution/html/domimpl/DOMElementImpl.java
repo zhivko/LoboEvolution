@@ -515,35 +515,6 @@ public class DOMElementImpl extends DOMFunctionImpl implements Element {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.w3c.dom.Element#getElementsByTagName(java.lang.String)
-	 */
-	@Override
-	public NodeList getElementsByTagName(String name) {
-		boolean matchesAll = "*".equals(name);
-		List<Object> descendents = new LinkedList<Object>();
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			if (ArrayUtilities.isNotBlank(nl)) {
-				for (Node child : nl) {
-					if (child instanceof Element) {
-						Element childElement = (Element) child;
-						if (matchesAll || isTagName(childElement, name)) {
-							descendents.add(child);
-						}
-						NodeList sublist = childElement.getElementsByTagName(name);
-						for (Node node : Nodes.iterable(sublist)) {
-							descendents.add(node);
-						}
-					}
-				}
-			}
-		}
-		return new DOMNodeListImpl(descendents);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.w3c.dom.Element#getElementsByTagNameNS(java.lang.String,
 	 * java.lang.String)
 	 */
@@ -868,45 +839,39 @@ public class DOMElementImpl extends DOMFunctionImpl implements Element {
 	 * @return the raw inner text
 	 */
 	protected String getRawInnerText(boolean includeComment) {
-		synchronized (this.getTreeLock()) {
-			StringBuilder sb = null;
-			ArrayList<Node> nl = this.nodeList;
-			if (ArrayUtilities.isNotBlank(nl)) {
-				for (Node node : nl) {
-					if (node instanceof Text) {
-						Text tn = (Text) node;
-						String txt = tn.getNodeValue();
-						if (!"".equals(txt)) {
-							if (sb == null) {
-								sb = new StringBuilder();
-							}
-							sb.append(txt);
-						}
-					} else if (node instanceof DOMElementImpl) {
-						DOMElementImpl en = (DOMElementImpl) node;
-						String txt = en.getRawInnerText(includeComment);
-						if (!"".equals(txt)) {
-							if (sb == null) {
-								sb = new StringBuilder();
-							}
-							sb.append(txt);
-						}
-					} else if (includeComment && node instanceof Comment) {
-						Comment cn = (Comment) node;
-						String txt = cn.getNodeValue();
-						if (!"".equals(txt)) {
-							if (sb == null) {
-								sb = new StringBuilder();
-							}
-							sb.append(txt);
-						}
+		StringBuffer sb = null;
+		for (Node node : Nodes.iterable(nodeList)) {
+			if (node instanceof Text) {
+				final Text tn = (Text) node;
+				final String txt = tn.getNodeValue();
+				if (Strings.isNotBlank(txt)) {
+					if (sb == null) {
+						sb = new StringBuffer();
 					}
+					sb.append(txt);
 				}
-				return sb == null ? "" : sb.toString();
-			} else {
-				return "";
+			} else if (node instanceof DOMElementImpl) {
+				final DOMElementImpl en = (DOMElementImpl) node;
+				final String txt = en.getRawInnerText(includeComment);
+				if (Strings.isNotBlank(txt)) {
+					if (sb == null) {
+						sb = new StringBuffer();
+					}
+					sb.append(txt);
+				}
+			} else if (includeComment && node instanceof Comment) {
+				final Comment cn = (Comment) node;
+				final String txt = cn.getNodeValue();
+				if (Strings.isNotBlank(txt)) {
+					if (sb == null) {
+						sb = new StringBuffer();
+					}
+					sb.append(txt);
+				}
 			}
 		}
+		return sb == null ? "" : sb.toString();
+
 	}
 
 	/*
@@ -937,20 +902,15 @@ public class DOMElementImpl extends DOMFunctionImpl implements Element {
 	 *            the new inner text
 	 */
 	public void setInnerText(String newText) {
-		Document doc = this.document;
-		if (doc == null) {
-			logger.error("setInnerText(): Element " + this + " does not belong to a document.");
+		final org.w3c.dom.Document document = this.document;
+		if (document == null) {
+			logger.warn("setInnerText(): Element " + this + " does not belong to a document.");
 			return;
 		}
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			if (nl != null) {
-				nl.clear();
-			}
-		}
+		this.nodeList.clear();
 		// Create node and call appendChild outside of synchronized block.
-		Node textNode = doc.createTextNode(newText);
-		this.appendChild(textNode);
+		final Node textNode = document.createTextNode(newText);
+		appendChild(textNode);
 	}
 
 	/*

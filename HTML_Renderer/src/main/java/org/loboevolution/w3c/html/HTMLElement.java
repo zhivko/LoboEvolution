@@ -37,8 +37,7 @@ public interface HTMLElement extends Element {
 	 *            the class names
 	 * @return the elements by class name
 	 */
-	// HTMLElement
-	public NodeList getElementsByClassName(String classNames);
+	public HTMLCollection getElementsByClassName(String classNames);
 
 	/**
 	 * Gets the inner html.

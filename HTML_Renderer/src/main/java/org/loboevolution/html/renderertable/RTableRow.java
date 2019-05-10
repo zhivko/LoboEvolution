@@ -54,7 +54,7 @@ public class RTableRow {
 
 		ArrayList<HTMLElementImpl> rElements = rowElements;
 		Map<HTMLElementImpl, ArrayList<VirtualCell>> rowElementToRowArray = new HashMap<>(2);
-		DOMNodeListImpl cellList = new HTMLCollectionImpl(te, new ColumnsFilter()).nodeList();
+		DOMNodeListImpl cellList = new HTMLCollectionImpl(te, new ColumnsFilter()).getNodeList();
 		ArrayList<VirtualCell> currentNullRow = null;
 		for (Node node : Nodes.iterable(cellList)) {
 			final HTMLElementImpl columnNode = (HTMLElementImpl) node;

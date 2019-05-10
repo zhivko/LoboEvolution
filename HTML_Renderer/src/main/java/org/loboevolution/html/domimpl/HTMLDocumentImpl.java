@@ -73,6 +73,7 @@ import org.loboevolution.http.ReadyState;
 import org.loboevolution.http.SSLCertificate;
 import org.loboevolution.http.Urls;
 import org.loboevolution.http.UserAgentContext;
+import org.loboevolution.util.Nodes;
 import org.loboevolution.util.io.EmptyReader;
 import org.loboevolution.w3c.events.EventTarget;
 import org.loboevolution.w3c.html.HTMLCollection;
@@ -88,6 +89,7 @@ import org.w3c.dom.views.AbstractView;
 import org.w3c.dom.views.DocumentView;
 import org.xml.sax.SAXException;
 
+import com.gargoylesoftware.css.dom.CSSStyleSheetImpl;
 import com.gargoylesoftware.css.dom.CSSStyleSheetListImpl;
 
 /**
@@ -444,7 +446,7 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 	 */
 	@Override
 	public NodeList getElementsByName(String elementName) {
-		return new HTMLCollectionImpl(this,new ElementNameFilter(elementName)).nodeList();
+		return getNodeList(new ElementNameFilter(elementName));
 	}
 	
 	/*
@@ -516,17 +518,14 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 	 * @param ss
 	 *            the ss
 	 */
-	public final void addStyleSheet(CSSStyleSheet ss) {
+	final void addStyleSheet(CSSStyleSheetImpl ss) {
 		synchronized (this.getTreeLock()) {
 			this.styleSheets.add(ss);
 			this.styleSheetAggregator = null;
-			this.forgetRenderState();
-			ArrayList<Node> nl = this.nodeList;
-			if (ArrayUtilities.isNotBlank(nl)) {
-				for (Node node : nl) {
-					if (node instanceof HTMLElementImpl) {
-						((HTMLElementImpl) node).forgetStyle(true);
-					}
+			forgetRenderState();
+			for (Node node : Nodes.iterable(nodeList)) {
+				if (node instanceof HTMLElementImpl) {
+					((HTMLElementImpl) node).forgetStyle(true);
 				}
 			}
 		}
@@ -541,15 +540,12 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 	 */
 	public void allInvalidated(boolean forgetRenderStates) {
 		if (forgetRenderStates) {
-			synchronized (this.getTreeLock()) {
+			synchronized (this.treeLock) {
 				this.styleSheetAggregator = null;
-				this.forgetRenderState();
-				ArrayList<Node> nl = this.nodeList;
-				if (ArrayUtilities.isNotBlank(nl)) {
-					for (Node node : nl) {
-						if (node instanceof HTMLElementImpl) {
-							((HTMLElementImpl) node).forgetStyle(true);
-						}
+				forgetRenderState();
+				for (Node node : Nodes.iterable(nodeList)) {
+					if (node instanceof HTMLElementImpl) {
+						((HTMLElementImpl) node).forgetStyle(true);
 					}
 				}
 			}
@@ -562,7 +558,7 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 	 *
 	 * @return the style sheets
 	 */
-	public StyleSheetList getStyleSheets() {
+	public CSSStyleSheetListImpl getStyleSheets() {
 		return this.styleSheets;
 	}
 
@@ -578,7 +574,7 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 				ssa = new StyleSheetAggregator(this);
 				try {
 					ssa.addStyleSheets(this.styleSheets.getCSSStyleSheets());
-				} catch (MalformedURLException | UnsupportedEncodingException mfu) {
+				} catch (Exception mfu) {
 					logger.error("getStyleSheetAggregator()", mfu);
 				}
 				this.styleSheetAggregator = ssa;
@@ -1148,11 +1144,13 @@ public class HTMLDocumentImpl extends DocumentImpl implements HTMLDocument, Docu
 	 */
 	@Override
 	public HTMLHeadElement getHead() {
-		NodeList elementsByName = new HTMLCollectionImpl(this, new HeadFilter()).nodeList();
-		if (elementsByName != null && elementsByName.getLength() > 0) {
-			return (HTMLHeadElement) elementsByName.item(0);
-		} else {
-			return null;
+		synchronized (this) {
+			HTMLCollection collection = new HTMLCollectionImpl(this, new HeadFilter());
+			if (collection.getLength() > 0) {
+				return (HTMLHeadElement) collection.item(0);
+			} else {
+				return null;
+			}
 		}
 	}
 	

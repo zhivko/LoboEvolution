@@ -28,13 +28,13 @@ public class HTMLTableSectionElementImpl extends HTMLAbstractUIElement implement
 	@Override
 	public HTMLElement insertRow(int index) throws DOMException {
 		HTMLTableElementImpl table = new HTMLTableElementImpl();
-		return table.insertRow(index, this.document);
+		return table.insertRow(index);
 	}
 
 	@Override
 	public void deleteRow(int index) throws DOMException {
 		HTMLTableElementImpl table = new HTMLTableElementImpl();
-		table.deleteRow(index, this.nodeList);
+		table.deleteRow(index);
 	}
 
 	@Override

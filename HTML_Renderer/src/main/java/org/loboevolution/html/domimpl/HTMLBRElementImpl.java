@@ -66,7 +66,7 @@ public class HTMLBRElementImpl extends HTMLElementImpl implements HTMLBRElement 
 	 * StringBuilder )
 	 */
 	@Override
-	protected void appendInnerTextImpl(StringBuilder buffer) {
+	protected void appendInnerTextImpl(StringBuffer buffer) {
 		buffer.append("\r\n");
 		super.appendInnerTextImpl(buffer);
 	}

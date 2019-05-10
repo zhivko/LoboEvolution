@@ -29,6 +29,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Level;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,6 +45,7 @@ import org.loboevolution.html.dombl.UINode;
 import org.loboevolution.html.domfilter.NodeFilter;
 import org.loboevolution.html.domfilter.TextFilter;
 import org.loboevolution.html.js.event.FunctionImpl;
+import org.loboevolution.html.parser.HtmlParser;
 import org.loboevolution.html.renderstate.RenderState;
 import org.loboevolution.html.renderstate.StyleSheetRenderState;
 import org.loboevolution.http.Urls;
@@ -67,266 +70,139 @@ import org.w3c.dom.UserDataHandler;
  */
 public abstract class DOMNodeImpl extends FunctionImpl implements Node, ModelNode, HtmlAttributeProperties {
 
-	/** The Constant EMPTY_ARRAY. */
-	private static final DOMNodeImpl[] EMPTY_ARRAY = new DOMNodeImpl[0];
-
-	/** The Constant INVALID_RENDER_STATE. */
-	private static final RenderState INVALID_RENDER_STATE = new StyleSheetRenderState(null);
-
-	/** The Constant logger. */
-	protected static final Logger logger = LogManager.getLogger(DOMNodeImpl.class);
-
-	/** The ui node. */
-	protected UINode uiNode;
-
-	/** The node list. */
-	protected ArrayList<Node> nodeList;
-
-	/** The document. */
+private static final RenderState INVALID_RENDER_STATE = new StyleSheetRenderState(null);
+	
+    protected static final Logger logger = LogManager.getLogger(DOMNodeImpl.class.getName());
+	
+	private HTMLCollectionImpl childrenCollection;
+	
 	protected volatile Document document;
+	
+	protected DOMNodeListImpl nodeList = new DOMNodeListImpl();
 
-	/**
-	 * A tree lock is less deadlock-prone than a node-level lock. This is assigned
-	 * in setOwnerDocument.
-	 */
-	private volatile Object treeLock = this;
-
-	/** The user data. */
-	private Map<String, Object> userData;
-
-	/** The user data handlers. */
-	private Map<String, UserDataHandler> userDataHandlers;
-
-	/** The notifications suspended. */
 	protected volatile boolean notificationsSuspended = false;
 
-	/** The render state. */
-	private RenderState renderState = INVALID_RENDER_STATE;
-
-	/** The children collection. */
-	private HTMLCollectionImpl childrenCollection;
-
-	/** The prefix. */
-	private volatile String prefix;
-
-	/** The parent node. */
 	protected volatile Node parentNode;
 
-	/**
-	 * Sets the UI node.
-	 *
-	 * @param uiNode
-	 *            the new UI node
-	 */
-	public void setUINode(UINode uiNode) {
-		// Called in GUI thread always.
-		this.uiNode = uiNode;
-	}
+	private volatile String prefix;
 
-	/**
-	 * Gets the UI node.
-	 *
-	 * @return the UI node
-	 */
-	public UINode getUINode() {
-		// Called in GUI thread always.
-		return this.uiNode;
-	}
+	private RenderState renderState = INVALID_RENDER_STATE;
 
-	/**
-	 * Tries to get a UINode associated with the current node. Failing that, it
-	 * tries ancestors recursively. This method will return the closest
-	 * <i>block-level</i> renderer node, if any.
-	 *
-	 * @return the UI node
-	 */
-	public UINode findUINode() {
-		// Called in GUI thread always.
-		UINode node = this.uiNode;
-		if (node != null) {
-			return node;
-		}
-		DOMNodeImpl pNode = (DOMNodeImpl) this.getParentNode();
-		return pNode == null ? null : pNode.findUINode();
-	}
+	protected volatile Object treeLock = this;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#appendChild(org.w3c.dom.Node)
-	 */
+	protected UINode uiNode;
+
+	private Map<String, Object> userData;
+
+	private Map<String, UserDataHandler> userDataHandlers;
+
+	public DOMNodeImpl() {
+		super();
+	}
+	
 	@Override
 	public Node appendChild(Node newChild) throws DOMException {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			if (nl == null) {
-				nl = new ArrayList<Node>(3);
-				this.nodeList = nl;
-			}
-			nl.add(newChild);
+		synchronized (this.treeLock) {
+			nodeList.add(newChild);
 			if (newChild instanceof DOMNodeImpl) {
 				((DOMNodeImpl) newChild).setParentImpl(this);
 			}
 		}
 
 		if (!this.notificationsSuspended) {
-			this.informStructureInvalid();
+			informStructureInvalid();
 		}
 		return newChild;
 	}
 
-	/**
-	 * Removes the all children.
-	 */
-	public void removeAllChildren() {
-		synchronized (this.getTreeLock()) {
-			this.removeAllChildrenImpl();
+	private void appendChildrenToCollectionImpl(NodeFilter filter, List<Node> collection) {
+		for (Node n : Nodes.iterable(nodeList)) {
+			DOMNodeImpl node = (DOMNodeImpl) n;
+			if (filter.accept(node)) {
+				collection.add(node);
+			}
+			node.appendChildrenToCollectionImpl(filter, collection);
 		}
 	}
 
-	/**
-	 * Removes the all children impl.
-	 */
-	protected void removeAllChildrenImpl() {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			if (nl != null) {
-				nl.clear();
-				// this.nodeList = null;
+	protected void appendInnerHTMLImpl(StringBuffer buffer) {
+		for (Node child : Nodes.iterable(nodeList)) {
+			if (child instanceof HTMLElementImpl) {
+				((HTMLElementImpl) child).appendOuterHTMLImpl(buffer);
+			} else if (child instanceof Comment) {
+				buffer.append("<!--" + ((Comment) child).getTextContent() + "-->");
+			} else if (child instanceof Text) {
+				final String text = ((Text) child).getTextContent();
+				final String encText = htmlEncodeChildText(text);
+				buffer.append(encText);
+			} else if (child instanceof ProcessingInstruction) {
+				buffer.append(child.toString());
 			}
 		}
-		if (!this.notificationsSuspended) {
-			this.informStructureInvalid();
-		}
 	}
 
-	/**
-	 * Gets the children array.
-	 *
-	 * @return the children array
-	 */
-	public DOMNodeImpl[] getChildrenArray() {
-		ArrayList<Node> nl = this.nodeList;
-		synchronized (this.getTreeLock()) {
-			return nl == null ? null : (DOMNodeImpl[]) nl.toArray(DOMNodeImpl.EMPTY_ARRAY);
-		}
-	}
-
-	/**
-	 * Gets the children.
-	 *
-	 * @return the children
-	 */
-	public HTMLCollectionImpl getChildren() {
-		// Method required by JavaScript
-		synchronized (this) {
-			HTMLCollectionImpl collection = this.childrenCollection;
-			if (collection == null) {
-				collection = new HTMLCollectionImpl(this, null);
-				this.childrenCollection = collection;
+	protected void appendInnerDOMTextImpl(StringBuffer buffer) {
+		for (Node child : Nodes.iterable(nodeList)) {
+			if (child instanceof DOMElementImpl) {
+				((DOMElementImpl) child).appendInnerDOMTextImpl(buffer);
 			}
-			return collection;
+			if (child instanceof Comment) {
+				// skip
+			} else if (child instanceof Text) {
+				buffer.append(((Text) child).getTextContent());
+			}
 		}
 	}
 
-	/**
-	 * Should create a node with some cloned properties, like the node name, but not
-	 * attributes or children.
-	 *
-	 * @return the node
-	 */
-	protected abstract Node createSimilarNode();
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#cloneNode(boolean)
-	 */
 	@Override
 	public Node cloneNode(boolean deep) {
 		try {
-			Node newNode = this.createSimilarNode();
-			NodeList children = this.getChildNodes();
-			for (Node child : Nodes.iterable(children)) {
-				Node newChild = deep ? child.cloneNode(deep) : child;
+			final Node newNode = createSimilarNode();
+			final NodeList children = getChildNodes();
+			final int length = children.getLength();
+			for (int i = 0; i < length; i++) {
+				final Node child = children.item(i);
+				final Node newChild = deep ? child.cloneNode(deep) : child;
 				newNode.appendChild(newChild);
 			}
 			if (newNode instanceof Element) {
-				Element elem = (Element) newNode;
-				NamedNodeMap nnmap = this.getAttributes();
+				final Element elem = (Element) newNode;
+				final NamedNodeMap nnmap = getAttributes();
 				if (nnmap != null) {
-					for (Attr attr : Nodes.iterable(nnmap)) {
+					final int nnlength = nnmap.getLength();
+					for (int i = 0; i < nnlength; i++) {
+						final Attr attr = (Attr) nnmap.item(i);
 						elem.setAttributeNode((Attr) attr.cloneNode(true));
 					}
 				}
 			}
 
 			synchronized (this) {
-				if (userDataHandlers != null && userData != null) {
-					for (Object element : userDataHandlers.entrySet()) {
-						Map.Entry entry = (Map.Entry) element;
-						UserDataHandler handler = (UserDataHandler) entry.getValue();
-						handler.handle(UserDataHandler.NODE_CLONED, (String) entry.getKey(),
-								userData.get(entry.getKey()), this, newNode);
+				if (this.userDataHandlers != null && this.userData != null) {
+					for (final Entry<String, UserDataHandler> entry2 : this.userDataHandlers.entrySet()) {
+						final Map.Entry<String, UserDataHandler> entry = entry2;
+						final UserDataHandler handler = entry.getValue();
+						handler.handle(UserDataHandler.NODE_CLONED, entry.getKey(), this.userData.get(entry.getKey()),
+								this, newNode);
 					}
 				}
 			}
 
 			return newNode;
-		} catch (Exception err) {
-			throw new IllegalStateException(err);
+		} catch (final Exception err) {
+			throw new IllegalStateException(err.getMessage());
 		}
 	}
 
-	/**
-	 * Gets the node index.
-	 *
-	 * @return the node index
-	 */
-	private int getNodeIndex() {
-		DOMNodeImpl parent = (DOMNodeImpl) this.getParentNode();
-		if (parent == null) {
-			return -1;
-		} else {
-			synchronized (this.getTreeLock()) {
-				ArrayList<Node> nl = this.nodeList;
-				return nl == null ? -1 : nl.indexOf(this);
-			}
-		}
-	}
-
-	/**
-	 * Checks if is ancestor of.
-	 *
-	 * @param other
-	 *            the other
-	 * @return true, if is ancestor of
-	 */
-	private boolean isAncestorOf(Node other) {
-		DOMNodeImpl parent = (DOMNodeImpl) other.getParentNode();
-		if (Objects.equals(parent, this)) {
-			return true;
-		} else if (parent == null) {
-			return false;
-		} else {
-			return this.isAncestorOf(parent);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#compareDocumentPosition(org.w3c.dom.Node)
-	 */
 	@Override
 	public short compareDocumentPosition(Node other) throws DOMException {
-		Node parent = this.getParentNode();
+		final Node parent = getParentNode();
 		if (!(other instanceof DOMNodeImpl)) {
 			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unknwon node implementation");
 		}
-		if (Objects.equals(parent, other.getParentNode())) {
-			int thisIndex = this.getNodeIndex();
-			int otherIndex = ((DOMNodeImpl) other).getNodeIndex();
+		if (parent != null && parent == other.getParentNode()) {
+			final int thisIndex = getNodeIndex();
+			final int otherIndex = ((DOMNodeImpl) other).getNodeIndex();
 			if (thisIndex == -1 || otherIndex == -1) {
 				return Node.DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC;
 			}
@@ -335,7 +211,7 @@ public abstract class DOMNodeImpl extends FunctionImpl implements Node, ModelNod
 			} else {
 				return Node.DOCUMENT_POSITION_PRECEDING;
 			}
-		} else if (this.isAncestorOf(other)) {
+		} else if (isAncestorOf(other)) {
 			return Node.DOCUMENT_POSITION_CONTAINED_BY;
 		} else if (((DOMNodeImpl) other).isAncestorOf(this)) {
 			return Node.DOCUMENT_POSITION_CONTAINS;
@@ -344,961 +220,155 @@ public abstract class DOMNodeImpl extends FunctionImpl implements Node, ModelNod
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getAttributes()
-	 */
-	@Override
-	public NamedNodeMap getAttributes() {
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getOwnerDocument()
-	 */
-	@Override
-	public Document getOwnerDocument() {
-		return this.document;
+	protected RenderState createRenderState(RenderState prevRenderState) {
+		return prevRenderState;
 	}
 
 	/**
-	 * Sets the owner document.
-	 *
-	 * @param value
-	 *            the new owner document
+	 * Should create a node with some cloned properties, like the node name, but not
+	 * attributes or children.
 	 */
-	public void setOwnerDocument(Document value) {
-		this.document = value;
-		this.setTreeLock(value == null ? this : value);
-	}
+	protected abstract Node createSimilarNode();
 
-	/**
-	 * Sets the owner document.
-	 *
-	 * @param value
-	 *            the value
-	 * @param deep
-	 *            the deep
-	 */
-	public void setOwnerDocument(Document value, boolean deep) {
-		this.document = value;
-		this.setTreeLock(value == null ? this : value);
-		if (deep) {
-			synchronized (this.getTreeLock()) {
-				ArrayList<Node> nl = this.nodeList;
-				if (ArrayUtilities.isNotBlank(nl)) {
-					for (Node node : nl) {
-						DOMNodeImpl child = (DOMNodeImpl) node;
-						child.setOwnerDocument(value, deep);
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Visit impl.
-	 *
-	 * @param visitor
-	 *            the visitor
-	 */
-	protected void visitImpl(NodeVisitor visitor) {
-		try {
-			visitor.visit(this);
-		} catch (SkipVisitorException sve) {
-			return;
-		} catch (StopVisitorException sve) {
-			throw sve;
-		}
-		ArrayList<Node> nl = this.nodeList;
-		if (ArrayUtilities.isNotBlank(nl)) {
-			for (Node node : nl) {
-				DOMNodeImpl child = (DOMNodeImpl) node;
-				try {
-					child.visit(visitor);
-				} catch (StopVisitorException sve) {
-					throw sve;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Visit.
-	 *
-	 * @param visitor
-	 *            the visitor
-	 */
-	public void visit(NodeVisitor visitor) {
-		synchronized (this.getTreeLock()) {
-			this.visitImpl(visitor);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#insertBefore(org.w3c.dom.Node, org.w3c.dom.Node)
-	 */
-	@Override
-	public Node insertBefore(Node newChild, Node refChild) throws DOMException {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			int idx = nl == null ? -1 : nl.indexOf(refChild);
-			if (idx == -1) {
-				throw new DOMException(DOMException.NOT_FOUND_ERR, "refChild not found");
-			}
-			nl.add(idx, newChild);
-			if (newChild instanceof DOMNodeImpl) {
-				((DOMNodeImpl) newChild).setParentImpl(this);
-			}
-		}
-		if (!this.notificationsSuspended) {
-			this.informStructureInvalid();
-		}
-		return newChild;
-	}
-
-	/**
-	 * Insert at.
-	 *
-	 * @param newChild
-	 *            the new child
-	 * @param idx
-	 *            the idx
-	 * @return the node
-	 * @throws DOMException
-	 *             the DOM exception
-	 */
-	protected Node insertAt(Node newChild, int idx) throws DOMException {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			if (nl == null) {
-				nl = new ArrayList<Node>();
-				this.nodeList = nl;
-			}
-			nl.add(idx, newChild);
-			if (newChild instanceof DOMNodeImpl) {
-				((DOMNodeImpl) newChild).setParentImpl(this);
-			}
-		}
-		if (!this.notificationsSuspended) {
-			this.informStructureInvalid();
-		}
-		return newChild;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#replaceChild(org.w3c.dom.Node, org.w3c.dom.Node)
-	 */
-	@Override
-	public Node replaceChild(Node newChild, Node oldChild) throws DOMException {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			int idx = nl == null ? -1 : nl.indexOf(oldChild);
-			if (idx == -1) {
-				throw new DOMException(DOMException.NOT_FOUND_ERR, "oldChild not found");
-			}
-			nl.set(idx, newChild);
-		}
-		if (!this.notificationsSuspended) {
-			this.informStructureInvalid();
-		}
-		return newChild;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#removeChild(org.w3c.dom.Node)
-	 */
-	@Override
-	public Node removeChild(Node oldChild) throws DOMException {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			if (nl == null || !nl.remove(oldChild)) {
-				throw new DOMException(DOMException.NOT_FOUND_ERR, "oldChild not found");
-			}
-		}
-		if (!this.notificationsSuspended) {
-			this.informStructureInvalid();
-		}
-		return oldChild;
-	}
-
-	/**
-	 * Removes the child at.
-	 *
-	 * @param index
-	 *            the index
-	 * @return the node
-	 * @throws DOMException
-	 *             the DOM exception
-	 */
-	public Node removeChildAt(int index) throws DOMException {
-		try {
-			synchronized (this.getTreeLock()) {
-				ArrayList<Node> nl = this.nodeList;
-				if (nl == null) {
-					throw new DOMException(DOMException.INDEX_SIZE_ERR, "Empty list of children");
-				}
-				Node n = nl.remove(index);
-				if (n == null) {
-					throw new DOMException(DOMException.INDEX_SIZE_ERR, "No node with that index");
-				}
-				return n;
-			}
-		} finally {
-			if (!this.notificationsSuspended) {
-				this.informStructureInvalid();
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#hasChildNodes()
-	 */
-	@Override
-	public boolean hasChildNodes() {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			return nl != null && !nl.isEmpty();
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getBaseURI()
-	 */
-	@Override
-	public String getBaseURI() {
-		Document doc = this.document;
-		return doc == null ? null : doc.getBaseURI();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getChildNodes()
-	 */
-	@Override
-	public NodeList getChildNodes() {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			return new DOMNodeListImpl(nl == null ? Collections.emptyList() : nl);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getFirstChild()
-	 */
-	@Override
-	public Node getFirstChild() {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			if (nl == null)
-				return null;
-
-			int size = nl.size();
-			int index = 0;
-			if (size > index && index > -1) {
-				return nl.get(0);
-			} else {
-				return null;
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getLastChild()
-	 */
-	@Override
-	public Node getLastChild() {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			if(nl == null)
-				return null;
-			
-			int size = nl.size();
-			int index = size - 1;
-			if (size > index && index > -1) {
-				return nl.get(nl.size() - 1);
-			} else {
-				return null;
-			}
-		}
-	}
-
-	/**
-	 * Gets the previous to.
-	 *
-	 * @param node
-	 *            the node
-	 * @return the previous to
-	 */
-	private Node getPreviousTo(Node node) {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			int idx = nl == null ? -1 : nl.indexOf(node);
-			if (idx == -1) {
-				throw new DOMException(DOMException.NOT_FOUND_ERR, "node not found");
-			}
-			
-			int size = nl.size();
-			int index = idx - 1;
-			if (size > index && index > -1) {
-				return nl.get(index);
-			} else {
-				return null;
-			}
-		}
-	}
-
-	/**
-	 * Gets the next to.
-	 *
-	 * @param node
-	 *            the node
-	 * @return the next to
-	 */
-	private Node getNextTo(Node node) {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			int idx = nl == null ? -1 : nl.indexOf(node);
-			if (idx == -1) {
-				throw new DOMException(DOMException.NOT_FOUND_ERR, "node not found");
-			}
-
-			int size = nl.size();
-			int index = idx + 1;
-			if (size > index && index > -1) {
-				return nl.get(index);
-			} else {
-				return null;
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getPreviousSibling()
-	 */
-	@Override
-	public Node getPreviousSibling() {
-		DOMNodeImpl parent = (DOMNodeImpl) this.getParentNode();
-		return parent == null ? null : parent.getPreviousTo(this);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getNextSibling()
-	 */
-	@Override
-	public Node getNextSibling() {
-		DOMNodeImpl parent = (DOMNodeImpl) this.getParentNode();
-		return parent == null ? null : parent.getNextTo(this);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getFeature(java.lang.String, java.lang.String)
-	 */
-	@Override
-	public Object getFeature(String feature, String version) {
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#setUserData(java.lang.String, java.lang.Object,
-	 * org.w3c.dom.UserDataHandler)
-	 */
-	@Override
-	public Object setUserData(String key, Object data, UserDataHandler handler) {
-		if (org.loboevolution.html.parser.HtmlParser.MODIFYING_KEY.equals(key)) {
-			boolean ns = Objects.equals(data, Boolean.TRUE);
-			this.notificationsSuspended = ns;
-			if (!ns) {
-				this.informNodeLoaded();
-			}
-		}
-		// here we spent some effort preventing our maps from growing too much
-		synchronized (this) {
-			if (handler != null) {
-				if (this.userDataHandlers == null) {
-					this.userDataHandlers = new HashMap<String, UserDataHandler>();
-				} else {
-					this.userDataHandlers.put(key, handler);
-				}
-			}
-
-			Map<String, Object> uData = this.userData;
-			if (data != null) {
-				if (uData == null) {
-					uData = new HashMap<String, Object>();
-					this.userData = uData;
-				}
-				return uData.put(key, data);
-			} else if (uData != null) {
-				return uData.remove(key);
-			} else {
-				return null;
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getUserData(java.lang.String)
-	 */
-	@Override
-	public Object getUserData(String key) {
-		synchronized (this) {
-			Map<String, Object> ud = this.userData;
-			return ud == null ? null : ud.get(key);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getLocalName()
-	 */
-	@Override
-	public abstract String getLocalName();
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#hasAttributes()
-	 */
-	@Override
-	public boolean hasAttributes() {
-		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getNamespaceURI()
-	 */
-	@Override
-	public String getNamespaceURI() {
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getNodeName()
-	 */
-	@Override
-	public abstract String getNodeName();
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getNodeValue()
-	 */
-	@Override
-	public abstract String getNodeValue() throws DOMException;
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getPrefix()
-	 */
-	@Override
-	public String getPrefix() {
-		return this.prefix;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#setPrefix(java.lang.String)
-	 */
-	@Override
-	public void setPrefix(String prefix) throws DOMException {
-		this.prefix = prefix;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#setNodeValue(java.lang.String)
-	 */
-	@Override
-	public abstract void setNodeValue(String nodeValue) throws DOMException;
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getNodeType()
-	 */
-	@Override
-	public abstract short getNodeType();
-
-	/**
-	 * Gets the text content of this node and its descendents.
-	 *
-	 * @return the text content
-	 * @throws DOMException
-	 *             the DOM exception
-	 */
-	@Override
-	public String getTextContent() throws DOMException {
-		StringBuilder sb = new StringBuilder();
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			if (ArrayUtilities.isNotBlank(nl)) {
-				for (Node node : nl) {
-					short type = node.getNodeType();
-					switch (type) {
-					case Node.CDATA_SECTION_NODE:
-					case Node.TEXT_NODE:
-					case Node.ELEMENT_NODE:
-						String textContent = node.getTextContent();
-						if (textContent != null) {
-							sb.append(textContent);
-						}
-						break;
-					default:
-						break;
-					}
-				}
-			}
-		}
-		return sb.toString();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#setTextContent(java.lang.String)
-	 */
-	@Override
-	public void setTextContent(String textContent) throws DOMException {
-		synchronized (this.getTreeLock()) {
-			this.removeChildrenImpl(new TextFilter());
-			if (textContent != null && !"".equals(textContent)) {
-				DOMTextImpl t = new DOMTextImpl(textContent);
-				t.setOwnerDocument(this.document);
-				t.setParentImpl(this);
-				ArrayList<Node> nl = this.nodeList;
-				if (nl == null) {
-					nl = new ArrayList<Node>();
-					this.nodeList = nl;
-				}
-				nl.add(t);
-			}
-		}
-		if (!this.notificationsSuspended) {
-			this.informStructureInvalid();
-		}
-	}
-
-	/**
-	 * Removes the children.
-	 *
-	 * @param filter
-	 *            the filter
-	 */
-	protected void removeChildren(NodeFilter filter) {
-		synchronized (this.getTreeLock()) {
-			this.removeChildrenImpl(filter);
-		}
-		if (!this.notificationsSuspended) {
-			this.informStructureInvalid();
-		}
-	}
-
-	/**
-	 * Removes the children impl.
-	 *
-	 * @param filter
-	 *            the filter
-	 */
-	protected void removeChildrenImpl(NodeFilter filter) {
-		ArrayList<Node> nl = this.nodeList;
-		if (nl != null) {
-			int len = nl.size();
-			for (int i = len; --i >= 0;) {
-				Node node = nl.get(i);
-				if (filter.accept(node)) {
-					nl.remove(i);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Insert after.
-	 *
-	 * @param newChild
-	 *            the new child
-	 * @param refChild
-	 *            the ref child
-	 * @return the node
-	 */
-	public Node insertAfter(Node newChild, Node refChild) {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			int idx = nl == null ? -1 : nl.indexOf(refChild);
-			if (idx == -1) {
-				throw new DOMException(DOMException.NOT_FOUND_ERR, "refChild not found");
-			}
-			nl.add(idx + 1, newChild);
-			if (newChild instanceof DOMNodeImpl) {
-				((DOMNodeImpl) newChild).setParentImpl(this);
-			}
-		}
-		if (!this.notificationsSuspended) {
-			this.informStructureInvalid();
-		}
-		return newChild;
-	}
-
-	/**
-	 * Replace adjacent text nodes.
-	 *
-	 * @param node
-	 *            the node
-	 * @param textContent
-	 *            the text content
-	 * @return the text
-	 */
-	public Text replaceAdjacentTextNodes(Text node, String textContent) {
-		try {
-			synchronized (this.getTreeLock()) {
-				ArrayList<Node> nl = this.nodeList;
-				if (nl == null) {
-					throw new DOMException(DOMException.NOT_FOUND_ERR, "Node not a child");
-				}
-				int idx = nl.indexOf(node);
-				if (idx == -1) {
-					throw new DOMException(DOMException.NOT_FOUND_ERR, "Node not a child");
-				}
-				int firstIdx = idx;
-				List<Object> toDelete = new LinkedList<Object>();
-				for (int adjIdx = idx; --adjIdx >= 0;) {
-					Object child = this.nodeList.get(adjIdx);
-					if (child instanceof Text) {
-						firstIdx = adjIdx;
-						toDelete.add(child);
-					}
-				}
-				int length = this.nodeList.size();
-				for (int adjIdx = idx; ++adjIdx < length;) {
-					Object child = this.nodeList.get(adjIdx);
-					if (child instanceof Text) {
-						toDelete.add(child);
-					}
-				}
-				this.nodeList.removeAll(toDelete);
-				DOMTextImpl textNode = new DOMTextImpl(textContent);
-				textNode.setOwnerDocument(this.document);
-				textNode.setParentImpl(this);
-				this.nodeList.add(firstIdx, textNode);
-				return textNode;
-			}
-		} finally {
-			if (!this.notificationsSuspended) {
-				this.informStructureInvalid();
-			}
-		}
-	}
-
-	/**
-	 * Replace adjacent text nodes.
-	 *
-	 * @param node
-	 *            the node
-	 * @return the text
-	 */
-	public Text replaceAdjacentTextNodes(Text node) {
-		try {
-			synchronized (this.getTreeLock()) {
-				ArrayList<Node> nl = this.nodeList;
-				if (nl == null) {
-					throw new DOMException(DOMException.NOT_FOUND_ERR, "Node not a child");
-				}
-				int idx = nl.indexOf(node);
-				if (idx == -1) {
-					throw new DOMException(DOMException.NOT_FOUND_ERR, "Node not a child");
-				}
-				StringBuilder textBuffer = new StringBuilder();
-				int firstIdx = idx;
-				List<Object> toDelete = new LinkedList<Object>();
-				for (int adjIdx = idx; --adjIdx >= 0;) {
-					Object child = this.nodeList.get(adjIdx);
-					if (child instanceof Text) {
-						firstIdx = adjIdx;
-						toDelete.add(child);
-						textBuffer.append(((Text) child).getNodeValue());
-					}
-				}
-				int length = this.nodeList.size();
-				for (int adjIdx = idx; ++adjIdx < length;) {
-					Object child = this.nodeList.get(adjIdx);
-					if (child instanceof Text) {
-						toDelete.add(child);
-						textBuffer.append(((Text) child).getNodeValue());
-					}
-				}
-				this.nodeList.removeAll(toDelete);
-				DOMTextImpl textNode = new DOMTextImpl(textBuffer.toString());
-				textNode.setOwnerDocument(this.document);
-				textNode.setParentImpl(this);
-				this.nodeList.add(firstIdx, textNode);
-				return textNode;
-			}
-		} finally {
-			if (!this.notificationsSuspended) {
-				this.informStructureInvalid();
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getParentNode()
-	 */
-	@Override
-	public Node getParentNode() {
-		// Should it be synchronized? Could have side-effects.
-		return this.parentNode;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#isSameNode(org.w3c.dom.Node)
-	 */
-	@Override
-	public boolean isSameNode(Node other) {
-		return Objects.equals(this, other);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#isSupported(java.lang.String, java.lang.String)
-	 */
-	@Override
-	public boolean isSupported(String feature, String version) {
-		return "HTML".equals(feature) && version.compareTo("4.01") <= 0;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#lookupNamespaceURI(java.lang.String)
-	 */
-	@Override
-	public String lookupNamespaceURI(String prefix) {
-		return null;
-	}
-
-	/**
-	 * Equal attributes.
-	 *
-	 * @param arg
-	 *            the arg
-	 * @return true, if successful
-	 */
 	public boolean equalAttributes(Node arg) {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Extracts all descendents that match the filter, except those descendents of
+	 * nodes that match the filter.
 	 * 
-	 * @see org.w3c.dom.Node#isEqualNode(org.w3c.dom.Node)
+	 * @param filter
+	 * @param al
 	 */
-	@Override
-	public boolean isEqualNode(Node arg) {
-		return arg instanceof DOMNodeImpl && this.getNodeType() == arg.getNodeType()
-				&& Objects.equals(this.getNodeName(), arg.getNodeName())
-				&& Objects.equals(this.getNodeValue(), arg.getNodeValue())
-				&& Objects.equals(this.getLocalName(), arg.getLocalName())
-				&& Objects.equals(this.nodeList, ((DOMNodeImpl) arg).nodeList) && this.equalAttributes(arg);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#isDefaultNamespace(java.lang.String)
-	 */
-	@Override
-	public boolean isDefaultNamespace(String namespaceURI) {
-		return namespaceURI == null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#lookupPrefix(java.lang.String)
-	 */
-	@Override
-	public String lookupPrefix(String namespaceURI) {
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#normalize()
-	 */
-	@Override
-	public void normalize() {
-		synchronized (this.getTreeLock()) {
-			ArrayList<Node> nl = this.nodeList;
-			if (ArrayUtilities.isNotBlank(nl)) {
-				List<Node> textNodes = new LinkedList<Node>();
-				boolean prevText = false;
-				for (Node child : nl) {
-					if (child.getNodeType() == Node.TEXT_NODE) {
-						if (!prevText) {
-							prevText = true;
-							textNodes.add(child);
-						}
-					} else {
-						prevText = false;
-					}
+	private void extractDescendentsArrayImpl(NodeFilter filter, ArrayList<Node> al, boolean nestIntoMatchingNodes) {
+		for (Node node : Nodes.iterable(nodeList)) {
+			DOMNodeImpl n = (DOMNodeImpl) node;
+			if (filter.accept(n)) {
+				al.add(n);
+				if (nestIntoMatchingNodes) {
+					n.extractDescendentsArrayImpl(filter, al, nestIntoMatchingNodes);
 				}
-				for (Node node : textNodes) {
-					Text text = (Text) node;
-					this.replaceAdjacentTextNodes(text);
+			} else if (n.getNodeType() == Node.ELEMENT_NODE) {
+				n.extractDescendentsArrayImpl(filter, al, nestIntoMatchingNodes);
+			}
+		}
+	}
+
+	/**
+	 * Tries to get a UINode associated with the current node. Failing that, it
+	 * tries ancestors recursively. This method will return the closest
+	 * <i>block-level</i> renderer node, if any.
+	 */
+	public UINode findUINode() {
+		// Called in GUI thread always.
+		final UINode uiNode = this.uiNode;
+		if (uiNode != null) {
+			return uiNode;
+		}
+		final DOMNodeImpl parentNode = (DOMNodeImpl) getParentNode();
+		return parentNode == null ? null : parentNode.findUINode();
+	}
+
+	protected void forgetRenderState() {
+		synchronized (this.treeLock) {
+			if (this.renderState != INVALID_RENDER_STATE) {
+				this.renderState = INVALID_RENDER_STATE;
+				for (Node node : Nodes.iterable(nodeList)) {
+					((DOMNodeImpl) node).forgetRenderState();
 				}
 			}
 		}
-		if (!this.notificationsSuspended) {
-			this.informStructureInvalid();
-		}
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return this.getNodeName();
-	}
-
-	/**
-	 * Gets the user agent context.
-	 *
-	 * @return the user agent context
-	 */
-	public UserAgentContext getUserAgentContext() {
-		Object doc = this.document;
-		if (doc instanceof HTMLDocumentImpl) {
-			return ((HTMLDocumentImpl) doc).getUserAgentContext();
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Gets the html renderer context.
-	 *
-	 * @return the html renderer context
-	 */
-	public HtmlRendererContext getHtmlRendererContext() {
-		Object doc = this.document;
-		if (doc instanceof HTMLDocumentImpl) {
-			return ((HTMLDocumentImpl) doc).getHtmlRendererContext();
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Sets the parent impl.
-	 *
-	 * @param parent
-	 *            the new parent impl
-	 */
-	protected final void setParentImpl(Node parent) {
-		// Call holding treeLock.
-		this.parentNode = parent;
-	}
-
-	// -----ModelNode implementation
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.loboevolution.html.render.RenderableContext#getAlignmentX()
-	 */
-	/**
-	 * Gets the alignment x.
-	 *
-	 * @return the alignment x
+	 * @see org.xamjwg.html.renderer.RenderableContext#getAlignmentX()
 	 */
 	public float getAlignmentX() {
-		// TODO: Removable method?
 		return 0.5f;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.loboevolution.html.render.RenderableContext#getAlignmentY()
-	 */
-	/**
-	 * Gets the alignment y.
-	 *
-	 * @return the alignment y
+	 * @see org.xamjwg.html.renderer.RenderableContext#getAlignmentY()
 	 */
 	public float getAlignmentY() {
 		return 0.5f;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.loboevolution.html.render.RenderableContext#getFullURL(String)
-	 */
 	@Override
-	public URL getFullURL(String spec) throws MalformedURLException {
-		Object doc = this.document;
-		String cleanSpec = Urls.encodeIllegalCharacters(spec);
-		if (doc instanceof HTMLDocumentImpl) {
-			return ((HTMLDocumentImpl) doc).getFullURL(cleanSpec);
-		} else {
-			return new URL(cleanSpec);
+	public NamedNodeMap getAttributes() {
+		return null;
+	}
+
+	@Override
+	public String getBaseURI() {
+		final Document document = this.document;
+		return document == null ? null : document.getBaseURI();
+	}
+
+	Node getChildAtIndex(int index) {
+		return this.nodeList.get(index);
+	}
+
+	int getChildCount() {
+		return nodeList.getLength();
+	}
+
+	int getChildIndex(Node child) {
+		return this.nodeList.indexOf(child);
+	}
+
+	@Override
+	public NodeList getChildNodes() {
+		return this.nodeList;
+	}
+
+	public HTMLCollectionImpl getChildren() {
+		// Method required by JavaScript
+		synchronized (this) {
+			HTMLCollectionImpl collection = this.childrenCollection;
+			if (collection == null) {
+				collection = new HTMLCollectionImpl(this);
+				this.childrenCollection = collection;
+			}
+			return collection;
 		}
 	}
 
+	public DOMNodeImpl[] getChildrenArray() {
+		return this.nodeList.toArray();
+	}
+
 	/**
-	 * Gets the document url.
-	 *
-	 * @return the document url
+	 * Creates an <code>ArrayList</code> of descendent nodes that the given filter
+	 * condition.
 	 */
+	public ArrayList<Node> getDescendents(NodeFilter filter, boolean nestIntoMatchingNodes) {
+		final ArrayList<Node> al = new ArrayList<Node>();
+		synchronized (this.treeLock) {
+			extractDescendentsArrayImpl(filter, al, nestIntoMatchingNodes);
+		}
+		return al;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.xamjwg.html.renderer.RenderableContext#getDocumentItem(java.lang.String)
+	 */
+	@Override
+	public Object getDocumentItem(String name) {
+		final org.w3c.dom.Document document = this.document;
+		return document == null ? null : document.getUserData(name);
+	}
+
 	public URL getDocumentURL() {
-		Object doc = this.document;
+		final Object doc = this.document;
 		if (doc instanceof HTMLDocumentImpl) {
 			return ((HTMLDocumentImpl) doc).getDocumentURL();
 		} else {
@@ -1306,183 +376,190 @@ public abstract class DOMNodeImpl extends FunctionImpl implements Node, ModelNod
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.loboevolution.html.render.RenderableContext#getDocumentItem( String)
-	 */
 	@Override
-	public Object getDocumentItem(String name) {
-		Document doc = this.document;
-		return doc == null ? null : doc.getUserData(name);
+	public Object getFeature(String feature, String version) {
+		// TODO What should this do?
+		return null;
+	}
+
+	@Override
+	public Node getFirstChild() {
+		return this.nodeList.get(0);
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.loboevolution.html.render.RenderableContext#setDocumentItem( String,
-	 * java.lang.Object)
+	 * @see org.xamjwg.html.renderer.RenderableContext#getFullURL(java.lang.String)
 	 */
 	@Override
-	public void setDocumentItem(String name, Object value) {
-		Document doc = this.document;
-		if (doc == null) {
-			return;
-		}
-		doc.setUserData(name, value, null);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.loboevolution.html.render.RenderableContext#isEqualOrDescendentOf(org.
-	 * xamjwg.html.renderer.RenderableContext)
-	 */
-	@Override
-	public final boolean isEqualOrDescendentOf(ModelNode otherContext) {
-		if (Objects.equals(otherContext, this)) {
-			return true;
-		}
-		Object parent = this.getParentNode();
-		if (parent instanceof HTMLElementImpl) {
-			return ((HTMLElementImpl) parent).isEqualOrDescendentOf(otherContext);
+	public URL getFullURL(String spec) throws MalformedURLException {
+		final Object doc = this.document;
+		final String cleanSpec  = Urls.encodeIllegalCharacters(spec);
+		if (doc instanceof HTMLDocumentImpl) {
+			return ((HTMLDocumentImpl) doc).getFullURL(cleanSpec );
 		} else {
-			return false;
+			return new URL(cleanSpec );
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.loboevolution.html.dombl.ModelNode#getParentModelNode()
+	public HtmlRendererContext getHtmlRendererContext() {
+		final Object doc = this.document;
+		if (doc instanceof HTMLDocumentImpl) {
+			return ((HTMLDocumentImpl) doc).getHtmlRendererContext();
+		} else {
+			return null;
+		}
+	}
+
+	public String getInnerHTML() {
+		final StringBuffer buffer = new StringBuffer();
+		synchronized (this) {
+			appendInnerHTMLImpl(buffer);
+		}
+		return buffer.toString();
+	}
+
+	/**
+	 * Attempts to convert the subtree starting at this point to a close text
+	 * representation. BR elements are converted to line breaks, and so forth.
 	 */
+	public String getInnerText() {
+		final StringBuffer buffer = new StringBuffer();
+		synchronized (this.treeLock) {
+			appendInnerDOMTextImpl(buffer);
+		}
+		return buffer.toString();
+	}
+
+	@Override
+	public Node getLastChild() {
+		if(this.nodeList == null)
+			return null;
+
+		int size = this.nodeList.getLength();
+		int index = size - 1;
+		if (size > index && index > -1) {
+			return this.nodeList.get(this.nodeList.getLength() - 1);
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public abstract String getLocalName();
+
+	@Override
+	public String getNamespaceURI() {
+		return null;
+	}
+
+	@Override
+	public Node getNextSibling() {
+		final DOMNodeImpl parent = (DOMNodeImpl) getParentNode();
+		return parent == null ? null : parent.getNextTo(this);
+	}
+
+	private Node getNextTo(Node node) {
+		int idx = this.nodeList.indexOf(node);
+		if (idx == -1) {
+			throw new DOMException(DOMException.NOT_FOUND_ERR, "node not found");
+		}
+
+		int size = this.nodeList.getLength();
+		int index = idx + 1;
+		if (size > index && index > -1) {
+			return this.nodeList.item(index);
+		} else {
+			return null;
+		}
+	}
+
+	private int getNodeIndex() {
+		final DOMNodeImpl parent = (DOMNodeImpl) getParentNode();
+		return parent == null ? -1 : parent.getChildIndex(this);
+	}
+
+	protected NodeList getNodeList(NodeFilter filter) {
+		final List<Node> collection = new ArrayList<Node>();
+		synchronized (this.treeLock) {
+			appendChildrenToCollectionImpl(filter, collection);
+		}
+		return new DOMNodeListImpl(collection);
+	}
+
+	@Override
+	public abstract String getNodeName();
+
+	@Override
+	public abstract short getNodeType();
+
+	@Override
+	public abstract String getNodeValue() throws DOMException;
+
+	@Override
+	public Document getOwnerDocument() {
+		return this.document;
+	}
+
 	@Override
 	public final ModelNode getParentModelNode() {
 		return (ModelNode) this.parentNode;
 	}
 
-	/**
-	 * Inform size invalid.
-	 */
-	public void informSizeInvalid() {
-		HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
-		if (doc != null) {
-			doc.sizeInvalidated(this);
+	@Override
+	public Node getParentNode() {
+		return this.parentNode;
+	}
+
+	protected final RenderState getParentRenderState(Object parent) {
+		if (parent instanceof DOMNodeImpl) {
+			return ((DOMNodeImpl) parent).getRenderState();
+		} else {
+			return null;
 		}
 	}
 
-	/**
-	 * Inform look invalid.
-	 */
-	public void informLookInvalid() {
-		this.forgetRenderState();
-		HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
-		if (doc != null) {
-			doc.lookInvalidated(this);
+	@Override
+	public String getPrefix() {
+		return this.prefix;
+	}
+
+	@Override
+	public Node getPreviousSibling() {
+		final DOMNodeImpl parent = (DOMNodeImpl) getParentNode();
+		return parent == null ? null : parent.getPreviousTo(this);
+	}
+
+	private Node getPreviousTo(Node node) {
+		final int idx = this.nodeList.indexOf(node);
+		if (idx == -1) {
+			throw new DOMException(DOMException.NOT_FOUND_ERR, "node not found");
+		}
+		
+		int size = this.nodeList.getLength();
+		int index = idx - 1;
+		if (size > index && index > -1) {
+			return this.nodeList.item(index);
+		} else {
+			return null;
 		}
 	}
 
-	/**
-	 * Inform position invalid.
-	 */
-	public void informPositionInvalid() {
-		HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
-		if (doc != null) {
-			doc.positionInParentInvalidated(this);
-		}
-	}
-
-	/**
-	 * Inform invalid.
-	 */
-	public void informInvalid() {
-		// This is called when an attribute or child changes.
-		this.forgetRenderState();
-		HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
-		if (doc != null) {
-			doc.invalidated(this);
-		}
-	}
-
-	/**
-	 * Inform structure invalid.
-	 */
-	public void informStructureInvalid() {
-		// This is called when an attribute or child changes.
-		this.forgetRenderState();
-		HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
-		if (doc != null) {
-			doc.structureInvalidated(this);
-		}
-	}
-
-	/**
-	 * Inform node loaded.
-	 */
-	protected void informNodeLoaded() {
-		// This is called when an attribute or child changes.
-		this.forgetRenderState();
-		HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
-		if (doc != null) {
-			doc.nodeLoaded(this);
-		}
-	}
-
-	/**
-	 * Inform external script loading.
-	 */
-	protected void informExternalScriptLoading() {
-		// This is called when an attribute or child changes.
-		this.forgetRenderState();
-		HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
-		if (doc != null) {
-			doc.externalScriptLoading(this);
-		}
-	}
-
-	/**
-	 * Inform layout invalid.
-	 */
-	public void informLayoutInvalid() {
-		// This is called by the style properties object.
-		this.forgetRenderState();
-		HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
-		if (doc != null) {
-			doc.invalidated(this);
-		}
-	}
-
-	/**
-	 * Inform document invalid.
-	 */
-	public void informDocumentInvalid() {
-		// This is called when an attribute or child changes.
-		HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
-		if (doc != null) {
-			doc.allInvalidated(true);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.loboevolution.html.dombl.ModelNode#getRenderState()
-	 */
 	@Override
 	public RenderState getRenderState() {
 		// Generally called from the GUI thread, except for
 		// offset properties.
 		RenderState rs;
-		synchronized (this.getTreeLock()) {
+		synchronized (this.treeLock) {
 			rs = this.renderState;
-			if (!INVALID_RENDER_STATE.equals(rs)) {
+			if (rs != INVALID_RENDER_STATE) {
 				return rs;
 			}
-			Object parent = this.parentNode;
+			final Object parent = this.parentNode;
 			if (parent != null || this instanceof Document) {
-				RenderState prs = this.getParentRenderState(parent);
-				rs = this.createRenderState(prs);
+				final RenderState prs = getParentRenderState(parent);
+				rs = createRenderState(prs);
 				this.renderState = rs;
 				return rs;
 			} else {
@@ -1494,155 +571,570 @@ public abstract class DOMNodeImpl extends FunctionImpl implements Node, ModelNod
 	}
 
 	/**
-	 * Gets the parent render state.
-	 *
-	 * @param parent
-	 *            the parent
-	 * @return the parent render state
+	 * Gets the text content of this node and its descendents.
 	 */
-	protected final RenderState getParentRenderState(Object parent) {
-		if (parent instanceof DOMNodeImpl) {
-			return ((DOMNodeImpl) parent).getRenderState();
+	@Override
+	public String getTextContent() throws DOMException {
+		final StringBuffer sb = new StringBuffer();
+		for (Node node : Nodes.iterable(nodeList)) {
+			final short type = node.getNodeType();
+			switch (type) {
+			case Node.CDATA_SECTION_NODE:
+			case Node.TEXT_NODE:
+			case Node.ELEMENT_NODE:
+				final String textContent = node.getTextContent();
+				if (textContent != null) {
+					sb.append(textContent);
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		return sb.toString();
+	}
+
+	public UINode getUINode() {
+		// Called in GUI thread always.
+		return this.uiNode;
+	}
+
+	public UserAgentContext getUserAgentContext() {
+		final Object doc = this.document;
+		if (doc instanceof HTMLDocumentImpl) {
+			return ((HTMLDocumentImpl) doc).getUserAgentContext();
 		} else {
 			return null;
 		}
 	}
 
-	/**
-	 * Creates the render state.
-	 *
-	 * @param prevRenderState
-	 *            the prev render state
-	 * @return the render state
-	 */
-	protected RenderState createRenderState(RenderState prevRenderState) {
-		RenderState tmpRenderState = prevRenderState;
-		return tmpRenderState;
-	}
-
-	/**
-	 * Forget render state.
-	 */
-	protected void forgetRenderState() {
-		synchronized (this.getTreeLock()) {
-			if (this.renderState != INVALID_RENDER_STATE) {
-				this.renderState = INVALID_RENDER_STATE;
-				ArrayList<Node> nl = this.nodeList;
-				if (ArrayUtilities.isNotBlank(nl)) {
-					for (Node node : nl) {
-						((DOMNodeImpl) node).forgetRenderState();
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Gets the inner html.
-	 *
-	 * @return the inner html
-	 */
-	public String getInnerHTML() {
-		StringBuilder buffer = new StringBuilder();
+	@Override
+	public Object getUserData(String key) {
 		synchronized (this) {
-			this.appendInnerHTMLImpl(buffer);
-		}
-		return buffer.toString();
-	}
-
-	/**
-	 * Append inner html impl.
-	 *
-	 * @param buffer
-	 *            the buffer
-	 */
-	protected void appendInnerHTMLImpl(StringBuilder buffer) {
-		ArrayList<Node> nl = this.nodeList;
-		int size;
-		if (nl != null && (size = nl.size()) > 0) {
-			for (int i = 0; i < size; i++) {
-				Node child = nl.get(i);
-				if (child instanceof HTMLElementImpl) {
-					((HTMLElementImpl) child).appendOuterHTMLImpl(buffer);
-				} else if (child instanceof Comment) {
-					buffer.append("<!--" + ((Comment) child).getTextContent() + "-->");
-				} else if (child instanceof Text) {
-					String text = ((Text) child).getTextContent();
-					String encText = this.htmlEncodeChildText(text);
-					buffer.append(encText);
-				} else if (child instanceof ProcessingInstruction) {
-					buffer.append(child.toString());
-				}
-			}
+			final Map<String, Object> ud = this.userData;
+			return ud == null ? null : ud.get(key);
 		}
 	}
 
-	/**
-	 * Html encode child text.
-	 *
-	 * @param text
-	 *            the text
-	 * @return the string
-	 */
+	@Override
+	public boolean hasAttributes() {
+		return false;
+	}
+
+	@Override
+	public boolean hasChildNodes() {
+		return this.nodeList.getLength() > 0;
+	}
+
 	protected String htmlEncodeChildText(String text) {
 		return Strings.strictHtmlEncode(text, false);
 	}
 
-	/**
-	 * Gets the inner text.
-	 *
-	 * @return the inner text
-	 */
-	public String getInnerText() {
-		StringBuilder buffer = new StringBuilder();
-		synchronized (this.getTreeLock()) {
-			this.appendInnerTextImpl(buffer);
+	public void informDocumentInvalid() {
+		// This is called when an attribute or child changes.
+		final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+		if (doc != null) {
+			doc.allInvalidated(true);
 		}
-		return buffer.toString();
 	}
 
-	/**
-	 * Append inner text impl.
-	 *
-	 * @param buffer
-	 *            the buffer
+	protected void informExternalScriptLoading() {
+		// This is called when an attribute or child changes.
+		forgetRenderState();
+		final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+		if (doc != null) {
+			doc.externalScriptLoading(this);
+		}
+	}
+
+	public void informInvalid() {
+		// This is called when an attribute or child changes.
+		forgetRenderState();
+		final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+		if (doc != null) {
+			doc.invalidated(this);
+		}
+	}
+
+	public void informLayoutInvalid() {
+		// This is called by the style properties object.
+		forgetRenderState();
+		final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+		if (doc != null) {
+			doc.invalidated(this);
+		}
+	}
+
+	public void informLookInvalid() {
+		forgetRenderState();
+		final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+		if (doc != null) {
+			doc.lookInvalidated(this);
+		}
+	}
+
+	protected void informNodeLoaded() {
+		// This is called when an attribute or child changes.
+		forgetRenderState();
+		final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+		if (doc != null) {
+			doc.nodeLoaded(this);
+		}
+	}
+
+	public void informPositionInvalid() {
+		final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+		if (doc != null) {
+			doc.positionInParentInvalidated(this);
+		}
+	}
+
+	public void informSizeInvalid() {
+		final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+		if (doc != null) {
+			doc.sizeInvalidated(this);
+		}
+	}
+
+	public void informStructureInvalid() {
+		// This is called when an attribute or child changes.
+		forgetRenderState();
+		final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+		if (doc != null) {
+			doc.structureInvalidated(this);
+		}
+	}
+
+	public Node insertAfter(Node newChild, Node refChild) {
+		final int idx = this.nodeList.indexOf(refChild);
+		if (idx == -1) {
+			throw new DOMException(DOMException.NOT_FOUND_ERR, "refChild not found");
+		}
+		this.nodeList.add(idx + 1, newChild);
+		if (newChild instanceof DOMNodeImpl) {
+			((DOMNodeImpl) newChild).setParentImpl(this);
+		}
+
+		if (!this.notificationsSuspended) {
+			informStructureInvalid();
+		}
+		return newChild;
+	}
+
+	protected Node insertAt(Node newChild, int idx) throws DOMException {
+		this.nodeList.add(idx, newChild);
+		if (newChild instanceof DOMNodeImpl) {
+			((DOMNodeImpl) newChild).setParentImpl(this);
+		}
+
+		if (!this.notificationsSuspended) {
+			informStructureInvalid();
+		}
+		return newChild;
+	}
+
+	@Override
+	public Node insertBefore(Node newChild, Node refChild) throws DOMException {
+		synchronized (this.treeLock) {
+			final int idx = this.nodeList.indexOf(refChild);
+			if (idx == -1) {
+				throw new DOMException(DOMException.NOT_FOUND_ERR, "refChild not found");
+			}
+			this.nodeList.add(idx, newChild);
+			if (newChild instanceof DOMNodeImpl) {
+				((DOMNodeImpl) newChild).setParentImpl(this);
+			}
+		}
+		if (!this.notificationsSuspended) {
+			informStructureInvalid();
+		}
+		return newChild;
+	}
+
+	private boolean isAncestorOf(Node other) {
+		final DOMNodeImpl parent = (DOMNodeImpl) other.getParentNode();
+		if (parent == this) {
+			return true;
+		} else if (parent == null) {
+			return false;
+		} else {
+			return isAncestorOf(parent);
+		}
+	}
+
+	@Override
+	public boolean isDefaultNamespace(String namespaceURI) {
+		return namespaceURI == null;
+	}
+
+	@Override
+	public boolean isEqualNode(Node arg) {
+		return arg instanceof DOMNodeImpl && getNodeType() == arg.getNodeType()
+				&& Objects.equals(getNodeName(), arg.getNodeName())
+				&& Objects.equals(getNodeValue(), arg.getNodeValue())
+				&& Objects.equals(getLocalName(), arg.getLocalName())
+				&& Objects.equals(this.nodeList, ((DOMNodeImpl) arg).nodeList) && equalAttributes(arg);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.xamjwg.html.renderer.RenderableContext#isEqualOrDescendentOf(org.xamjwg.
+	 * html.renderer.RenderableContext)
 	 */
-	protected void appendInnerTextImpl(StringBuilder buffer) {
-		ArrayList<Node> nl = this.nodeList;
-		if (nl == null) {
+	@Override
+	public final boolean isEqualOrDescendentOf(ModelNode otherContext) {
+		if (otherContext == this) {
+			return true;
+		}
+		final Object parent = getParentNode();
+		if (parent instanceof HTMLElementImpl) {
+			return ((HTMLElementImpl) parent).isEqualOrDescendentOf(otherContext);
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean isSameNode(Node other) {
+		return this == other;
+	}
+
+	@Override
+	public boolean isSupported(String feature, String version) {
+		return "HTML".equals(feature) && version.compareTo("4.01") <= 0;
+	}
+
+	@Override
+	public String lookupNamespaceURI(String prefix) {
+		return null;
+	}
+
+	@Override
+	public String lookupPrefix(String namespaceURI) {
+		return null;
+	}
+
+	@Override
+	public void normalize() {
+		final List<Node> textNodes = new LinkedList<Node>();
+		boolean prevText = false;
+		for (Node child : Nodes.iterable(nodeList)) {
+			if (child.getNodeType() == Node.TEXT_NODE) {
+				if (!prevText) {
+					prevText = true;
+					textNodes.add(child);
+				}
+			} else {
+				prevText = false;
+			}
+		}
+		for (Node child : textNodes) {
+			final Text text = (Text) child;
+			this.replaceAdjacentTextNodes(text);
+		}
+
+		if (!this.notificationsSuspended) {
+			informStructureInvalid();
+		}
+	}
+
+	protected void removeAllChildren() {
+		synchronized (this.treeLock) {
+			removeAllChildrenImpl();
+		}
+	}
+
+	protected void removeAllChildrenImpl() {
+		this.nodeList.clear();
+		if (!this.notificationsSuspended) {
+			informStructureInvalid();
+		}
+	}
+
+	@Override
+	public Node removeChild(Node oldChild) throws DOMException {
+		synchronized (this.treeLock) {
+			if (!this.nodeList.remove(oldChild)) {
+				throw new DOMException(DOMException.NOT_FOUND_ERR, "oldChild not found");
+			}
+		}
+		if (!this.notificationsSuspended) {
+			informStructureInvalid();
+		}
+		return oldChild;
+	}
+
+	public Node removeChildAt(int index) throws DOMException {
+		try {
+			final Node n = this.nodeList.remove(index);
+			if (n == null) {
+				throw new DOMException(DOMException.INDEX_SIZE_ERR, "No node with that index");
+			}
+			return n;
+		} finally {
+			if (!this.notificationsSuspended) {
+				informStructureInvalid();
+			}
+		}
+	}
+
+	protected void removeChildren(NodeFilter filter) {
+		synchronized (this.treeLock) {
+			removeChildrenImpl(filter);
+		}
+		if (!this.notificationsSuspended) {
+			informStructureInvalid();
+		}
+	}
+
+	protected void removeChildrenImpl(NodeFilter filter) {
+		final int len = this.nodeList.getLength();
+		for (int i = len; --i >= 0;) {
+			final Node node = this.nodeList.item(i);
+			if (filter.accept(node)) {
+				this.nodeList.remove(i);
+			}
+		}
+	}
+
+	public Text replaceAdjacentTextNodes(Text node) {
+		try {
+				final int idx = nodeList.indexOf(node);
+				if (idx == -1) {
+					throw new DOMException(DOMException.NOT_FOUND_ERR, "Node not a child");
+				}
+				final StringBuffer textBuffer = new StringBuffer();
+				int firstIdx = idx;
+				final List<Node> toDelete = new LinkedList<Node>();
+				for (int adjIdx = idx; --adjIdx >= 0;) {
+					final Node child = this.nodeList.item(adjIdx);
+					if (child instanceof Text) {
+						firstIdx = adjIdx;
+						toDelete.add(child);
+						textBuffer.append(((Text) child).getNodeValue());
+					}
+				}
+				final int length = this.nodeList.getLength();
+				for (int adjIdx = idx; ++adjIdx < length;) {
+					final Node child = this.nodeList.item(adjIdx);
+					if (child instanceof Text) {
+						toDelete.add(child);
+						textBuffer.append(((Text) child).getNodeValue());
+					}
+				}
+				this.nodeList.removeAll(toDelete);
+				final DOMTextImpl textNode = new DOMTextImpl(textBuffer.toString());
+				textNode.setOwnerDocument(this.document);
+				textNode.setParentImpl(this);
+				this.nodeList.add(firstIdx, textNode);
+				return textNode;
+		} finally {
+			if (!this.notificationsSuspended) {
+				informStructureInvalid();
+			}
+		}
+	}
+
+	public Text replaceAdjacentTextNodes(Text node, String textContent) {
+		try {
+			final int idx = this.nodeList.indexOf(node);
+			if (idx == -1) {
+				throw new DOMException(DOMException.NOT_FOUND_ERR, "Node not a child");
+			}
+			int firstIdx = idx;
+			final List<Node> toDelete = new LinkedList<Node>();
+			for (int adjIdx = idx; --adjIdx >= 0;) {
+				final Node child = this.nodeList.item(adjIdx);
+				if (child instanceof Text) {
+					firstIdx = adjIdx;
+					toDelete.add(child);
+				}
+			}
+			final int length = this.nodeList.getLength();
+			for (int adjIdx = idx; ++adjIdx < length;) {
+				final Node child = this.nodeList.item(adjIdx);
+				if (child instanceof Text) {
+					toDelete.add(child);
+				}
+			}
+			this.nodeList.removeAll(toDelete);
+			final DOMTextImpl textNode = new DOMTextImpl(textContent);
+			textNode.setOwnerDocument(this.document);
+			textNode.setParentImpl(this);
+			this.nodeList.add(firstIdx, textNode);
+			return textNode;
+
+		} finally {
+			if (!this.notificationsSuspended) {
+				informStructureInvalid();
+			}
+		}
+	}
+
+	@Override
+	public Node replaceChild(Node newChild, Node oldChild) throws DOMException {
+	
+			final int idx = this.nodeList.indexOf(oldChild);
+			if (idx == -1) {
+				throw new DOMException(DOMException.NOT_FOUND_ERR, "oldChild not found");
+			}
+			this.nodeList.set(idx, newChild);
+		
+		if (!this.notificationsSuspended) {
+			informStructureInvalid();
+		}
+		return newChild;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.xamjwg.html.renderer.RenderableContext#setDocumentItem(java.lang.String,
+	 * java.lang.Object)
+	 */
+	@Override
+	public void setDocumentItem(String name, Object value) {
+		final org.w3c.dom.Document document = this.document;
+		if (document == null) {
 			return;
 		}
-		int size = nl.size();
-		if (size == 0) {
-			return;
+		document.setUserData(name, value, null);
+	}
+
+	@Override
+	public abstract void setNodeValue(String nodeValue) throws DOMException;
+
+	public void setOwnerDocument(Document value) {
+		this.document = value;
+		this.treeLock = value == null ? this : (Object) value;
+	}
+
+	void setOwnerDocument(Document value, boolean deep) {
+		this.document = value;
+		this.treeLock = value == null ? this : (Object) value;
+		if (deep) {
+			for (Node node : Nodes.iterable(nodeList)) {
+				final DOMNodeImpl child = (DOMNodeImpl) node;
+				child.setOwnerDocument(value, deep);
+			}
 		}
-		for (int i = 0; i < size; i++) {
-			Node child = nl.get(i);
+	}
+
+	final void setParentImpl(Node parent) {
+		// Call holding treeLock.
+		this.parentNode = parent;
+	}
+
+	@Override
+	public void setPrefix(String prefix) throws DOMException {
+		this.prefix = prefix;
+	}
+
+	@Override
+	public void setTextContent(String textContent) throws DOMException {
+		synchronized (this.treeLock) {
+			removeChildrenImpl(new TextFilter());
+			if (textContent != null && !"".equals(textContent)) {
+				final DOMTextImpl t = new DOMTextImpl(textContent);
+				t.setOwnerDocument(this.document);
+				t.setParentImpl(this);
+				this.nodeList.add(t);
+			}
+		}
+		if (!this.notificationsSuspended) {
+			informStructureInvalid();
+		}
+	}
+
+	public void setUINode(UINode uiNode) {
+		// Called in GUI thread always.
+		this.uiNode = uiNode;
+	}
+
+	@Override
+	public Object setUserData(final String key, final Object data, final UserDataHandler handler) {
+		if (HtmlParser.MODIFYING_KEY.equals(key)) {
+			final boolean ns = Boolean.TRUE == data;
+			this.notificationsSuspended = ns;
+			if (!ns) {
+				informNodeLoaded();
+			}
+		}
+		synchronized (this) {
+			if (handler != null) {
+				if (this.userDataHandlers == null) {
+					this.userDataHandlers = new HashMap<>();
+				} else {
+					this.userDataHandlers.remove(key);
+				}
+				this.userDataHandlers.put(key, handler);
+			}
+
+			Map<String, Object> userData = this.userData;
+			if (data != null) {
+				if (userData == null) {
+					userData = new HashMap<>();
+					this.userData = userData;
+				}
+				return userData.put(key, data);
+			} else if (userData != null) {
+				return userData.remove(key);
+			} else {
+				return null;
+			}
+		}
+	}
+	
+	protected void appendInnerTextImpl(StringBuffer buffer) {
+		for (Node child : Nodes.iterable(nodeList)) {
 			if (child instanceof DOMElementImpl) {
 				((DOMElementImpl) child).appendInnerTextImpl(buffer);
 			}
-			if (child instanceof Text) {
+			if (child instanceof Comment) {
+				// skip
+			} else if (child instanceof Text) {
 				buffer.append(((Text) child).getTextContent());
 			}
 		}
 	}
 
-	/**
-	 * Gets the a tree lock is less deadlock-prone than a node-level lock.
-	 *
-	 * @return the a tree lock is less deadlock-prone than a node-level lock
-	 */
-	public Object getTreeLock() {
-		return treeLock;
+	@Override
+	public String toString() {
+		return getNodeName();
 	}
 
-	/**
-	 * Sets the a tree lock is less deadlock-prone than a node-level lock.
-	 *
-	 * @param treeLock
-	 *            the new a tree lock is less deadlock-prone than a node-level lock
-	 */
-	public void setTreeLock(Object treeLock) {
-		this.treeLock = treeLock;
+	void visit(NodeVisitor visitor) {
+		synchronized (this.treeLock) {
+			visitImpl(visitor);
+		}
+	}
+
+	void visitImpl(NodeVisitor visitor) {
+		try {
+			visitor.visit(this);
+		} catch (final SkipVisitorException sve) {
+			return;
+		} catch (final StopVisitorException sve) {
+			throw sve;
+		}
+		for (Node node : Nodes.iterable(nodeList)) {
+			final DOMNodeImpl child = (DOMNodeImpl) node;
+			try {
+				child.visit(visitor);
+			} catch (final StopVisitorException sve) {
+				throw sve;
+			}
+		}
+	}
+
+	public void warn(String message) {
+		logger.warn(message);
+	}
+
+	public Object getTreeLock() {
+		return treeLock;
 	}
 }

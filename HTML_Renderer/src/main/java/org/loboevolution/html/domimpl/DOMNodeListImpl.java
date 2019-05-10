@@ -24,7 +24,8 @@
 package org.loboevolution.html.domimpl;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.loboevolution.js.AbstractScriptableDelegate;
 import org.w3c.dom.Node;
@@ -35,45 +36,67 @@ import org.w3c.dom.NodeList;
  */
 public class DOMNodeListImpl extends AbstractScriptableDelegate implements NodeList {
 
-	/** The node list. */
-	private final ArrayList nodeList = new ArrayList();
+	private final List<Node> nodeList = Collections.synchronizedList(new ArrayList<Node>());
 
-	/**
-	 * Instantiates a new DOM node list impl.
-	 *
-	 * @param collection
-	 *            the collection
-	 */
-	public DOMNodeListImpl(Collection collection) {
-		nodeList.addAll(collection);
+	public DOMNodeListImpl() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.NodeList#getLength()
-	 */
+	public DOMNodeListImpl(List<Node> collection) {
+		this.nodeList.addAll(collection);
+	}
+
 	@Override
 	public int getLength() {
 		return this.nodeList.size();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.NodeList#item(int)
-	 */
 	@Override
 	public Node item(int index) {
 		int size = this.nodeList.size();
 		if (size > index && index > -1) {
-			return (Node)this.nodeList.get(index);
+			return (Node) this.nodeList.get(index);
 		} else {
 			return null;
 		}
 	}
-	
-	protected int indexOf(Node node) {
-		return nodeList.indexOf(node);
+
+	public void add(Node newChild) {
+		this.nodeList.add(newChild);
+	}
+
+	public void add(int firstIdx, Node textNode) {
+		this.nodeList.add(firstIdx, textNode);
+	}
+
+	public int indexOf(Node child) {
+		return this.nodeList.indexOf(child);
+	}
+
+	public Node remove(int i) {
+		return this.nodeList.remove(i);
+	}
+
+	public Node get(int index) {
+		return this.nodeList.get(index);
+	}
+
+	public boolean remove(Node oldChild) {
+		return this.nodeList.remove(oldChild);
+	}
+
+	public void clear() {
+		this.nodeList.clear();
+	}
+
+	public DOMNodeImpl[] toArray() {
+		return this.nodeList.toArray(new DOMNodeImpl[0]);
+	}
+
+	public void set(int idx, Node newChild) {
+		this.nodeList.set(idx, newChild);
+	}
+
+	public void removeAll(List<Node> toDelete) {
+		this.nodeList.removeAll(toDelete);
 	}
 }

@@ -22,6 +22,7 @@ package org.loboevolution.html.dombl;
 
 import java.util.ArrayList;
 
+import org.loboevolution.html.domfilter.ClassNameFilter;
 import org.loboevolution.html.domfilter.ElementFilter;
 import org.loboevolution.html.domimpl.DOMNodeListImpl;
 import org.loboevolution.html.domimpl.HTMLCollectionImpl;
@@ -106,7 +107,7 @@ public class QuerySelectorImpl {
 			String[] str = selectors.split("\\,");
 			String str0 = str[0].trim();
 			String str1 = str[1].trim();
-			NodeList nodeList = new HTMLCollectionImpl(doc, new ElementFilter()).nodeList();
+			NodeList nodeList = new HTMLCollectionImpl(doc, new ElementFilter()).getNodeList();
 			for (Node node : Nodes.iterable(nodeList)) {
 				if (str0.equals(node.getNodeName()) || str1.equals(node.getNodeName())) {
 					element = (Element) doc.getElementsByTagName(node.getNodeName()).item(0);
@@ -139,7 +140,7 @@ public class QuerySelectorImpl {
 			String str0 = str[0].trim();
 			String str1 = str[1].trim();
 			if ("".equals(str0) || str0 == null) {
-				list = doc.getElementsByClassName(selectors.replace(".", ""));
+				list = new HTMLCollectionImpl(doc, new ClassNameFilter(selectors.replace(".", ""))).getNodeList();
 			} else {
 				NodeList nodeList = doc.getElementsByTagName(str0);
 				for (Node node : Nodes.iterable(nodeList)) {
@@ -183,7 +184,7 @@ public class QuerySelectorImpl {
 		} else if (selectors.contains(",")) {
 
 			String[] str = selectors.split("\\,");
-			NodeList nodeList = new HTMLCollectionImpl(doc, new ElementFilter()).nodeList();
+			NodeList nodeList = new HTMLCollectionImpl(doc, new ElementFilter()).getNodeList();
 			for (Node node : Nodes.iterable(nodeList)) {
 				for (String element : str) {
 					if (node.getNodeName().equals(element.trim())) {
@@ -193,7 +194,7 @@ public class QuerySelectorImpl {
 			}
 			list = new DOMNodeListImpl(listNode);
 		} else {
-			list = doc.getElementsByClassName(selectors);
+			list = new HTMLCollectionImpl(doc, new ClassNameFilter(selectors)).getNodeList();
 		}
 		return list;
 	}

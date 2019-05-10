@@ -23,14 +23,13 @@
  */
 package org.loboevolution.html.domimpl;
 
-import java.util.ArrayList;
-
 import org.loboevolution.html.domfilter.ElementTableAttributeFilter;
 import org.loboevolution.html.renderstate.RenderState;
 import org.loboevolution.html.renderstate.TableRenderState;
 import org.loboevolution.html.style.AbstractCSSProperties;
 import org.loboevolution.html.style.HtmlLength;
 import org.loboevolution.html.style.HtmlValues;
+import org.loboevolution.util.Nodes;
 import org.loboevolution.w3c.html.HTMLCollection;
 import org.loboevolution.w3c.html.HTMLElement;
 import org.loboevolution.w3c.html.HTMLTableCaptionElement;
@@ -469,7 +468,27 @@ public class HTMLTableElementImpl extends HTMLAbstractUIElement implements HTMLT
 	 */
 	@Override
 	public HTMLElement insertRow(int index) throws DOMException {
-		return insertRow(index, this.document);
+		final org.w3c.dom.Document doc = this.document;
+		if (doc == null) {
+			throw new DOMException(DOMException.WRONG_DOCUMENT_ERR, "Orphan element");
+		}
+		final HTMLElement rowElement = (HTMLElement) doc.createElement("TR");
+		if (index == -1) {
+			appendChild(rowElement);
+			return rowElement;
+		}
+		int trcount = 0;
+		for (Node node : Nodes.iterable(nodeList)) {
+			if ("TR".equalsIgnoreCase(node.getNodeName())) {
+				if (trcount == index) {
+					insertAt(rowElement, nodeList.indexOf(node));
+					return rowElement;
+				}
+				trcount++;
+			}
+		}
+		appendChild(rowElement);
+		return rowElement;
 	}
 
 	/*
@@ -479,8 +498,16 @@ public class HTMLTableElementImpl extends HTMLAbstractUIElement implements HTMLT
 	 */
 	@Override
 	public void deleteRow(int index) throws DOMException {
-		deleteRow(index, this.nodeList);
-		
+		int trcount = 0;
+		for (Node node : Nodes.iterable(nodeList)) {
+			if ("TR".equalsIgnoreCase(node.getNodeName())) {
+				if (trcount == index) {
+					removeChildAt(nodeList.indexOf(node));
+					return;
+				}
+				trcount++;
+			}
+		}
 	}
 	
 	/*
@@ -490,7 +517,7 @@ public class HTMLTableElementImpl extends HTMLAbstractUIElement implements HTMLT
 	 */
 	@Override
 	public HTMLElement insertRow() {
-		return insertRow(-1, this.document);
+		return insertRow(-1);
 	}
 
 	@Override
@@ -505,58 +532,6 @@ public class HTMLTableElementImpl extends HTMLAbstractUIElement implements HTMLT
 		return null;
 	}
 	
-	public HTMLElement insertRow(int index, Document doc) {
-		if (doc == null) {
-			throw new DOMException(DOMException.WRONG_DOCUMENT_ERR, "Orphan element");
-		}
-		HTMLElement rowElement = (HTMLElement) doc.createElement(TR);
-		synchronized (this.getTreeLock()) {
-			if (index == -1) {
-				this.appendChild(rowElement);
-				return rowElement;
-			}
-			ArrayList<Node> nl = this.nodeList;
-			if (nl != null) {
-				int size = nl.size();
-				int trcount = 0;
-				for (int i = 0; i < size; i++) {
-					Node node = nl.get(i);
-					if (TR.equalsIgnoreCase(node.getNodeName())) {
-						if (trcount == index) {
-							this.insertAt(rowElement, i);
-							return rowElement;
-						}
-						trcount++;
-					}
-				}
-			} else {
-				this.appendChild(rowElement);
-				return rowElement;
-			}
-		}
-		throw new DOMException(DOMException.INDEX_SIZE_ERR, "Index out of range");
-	}	
-	
-	public void deleteRow(int index, ArrayList<Node> nl) {
-		synchronized (this.getTreeLock()) {
-			if (nl != null) {
-				int size = nl.size();
-				int trcount = 0;
-				for (int i = 0; i < size; i++) {
-					Node node = nl.get(i);
-					if (TR.equalsIgnoreCase(node.getNodeName())) {
-						if (trcount == index) {
-							this.removeChildAt(i);
-							return;
-						}
-						trcount++;
-					}
-				}
-			}
-		}
-		throw new DOMException(DOMException.INDEX_SIZE_ERR, "Index out of range");
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
