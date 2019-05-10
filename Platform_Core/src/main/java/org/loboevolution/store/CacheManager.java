@@ -194,7 +194,7 @@ public final class CacheManager implements Runnable {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	public void putPersistent(URL url, byte[] rawContent, boolean isDecoration) throws IOException {
+	public static void putPersistent(URL url, byte[] rawContent, boolean isDecoration) throws IOException {
 		File cacheFile = getCacheFile(url, isDecoration);
 		synchronized (getLock(cacheFile)) {
 			File parent = cacheFile.getParentFile();
@@ -221,7 +221,7 @@ public final class CacheManager implements Runnable {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	public byte[] getPersistent(URL url, boolean isDecoration) throws IOException {
+	public static byte[] getPersistent(URL url, boolean isDecoration) throws IOException {
 		// We don't return an InputStream because further synchronization
 		// would be needed to prevent concurrent writes into the file.
 		File cacheFile = getCacheFile(url, isDecoration);

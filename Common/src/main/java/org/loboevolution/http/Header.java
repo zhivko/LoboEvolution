@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.ws.Response;
-
 /**
  * Represents a header field in an http {@link Request} or {@link Response}.
  *

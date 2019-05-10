@@ -26,9 +26,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.Base64;
 import java.util.HashMap;
-
-import javax.xml.bind.DatatypeConverter;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -162,7 +161,7 @@ public class DataURLConnection extends HttpURLConnection {
 			}
 
 			if (base64) {
-				this.content = DatatypeConverter.parseBase64Binary(value);
+				this.content = Base64.getDecoder().decode(value);
 			} else {
 				value = URLDecoder.decode(value, charset);
 				this.content = value.getBytes();
