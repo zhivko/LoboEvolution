@@ -384,7 +384,13 @@ private static final RenderState INVALID_RENDER_STATE = new StyleSheetRenderStat
 
 	@Override
 	public Node getFirstChild() {
-		return this.nodeList.get(0);
+		if(this.nodeList == null)
+			return null;
+
+		int size = this.nodeList.getLength();
+		if(size > 0)
+			return this.nodeList.get(0);
+		return null;
 	}
 
 	/*
