@@ -119,6 +119,8 @@ public class LocalSecurityPolicy extends Policy {
 		permissions.add(new RuntimePermission("loadLibrary.*"));
 		permissions.add(new RuntimePermission("createSecurityManager"));
 		permissions.add(new RuntimePermission("accessClassInPackage.jdk.internal.reflect"));
+		permissions.add(new RuntimePermission("getStackWalkerWithClassReference"));
+		permissions.add(new MBeanPermission("*", "*"));	
 		permissions.add(new NetPermission("setDefaultAuthenticator"));
 		permissions.add(new NetPermission("setCookieHandler"));
 		permissions.add(new NetPermission("specifyStreamHandler"));
@@ -272,7 +274,7 @@ public class LocalSecurityPolicy extends Policy {
 			permissions.add(new PropertyPermission("os.arch", "read"));
 			permissions.add(new PropertyPermission("line.separator", "read"));
 			permissions.add(new SocketPermission(location.getHost(), "connect,resolve"));
-			permissions.add(new MBeanPermission("-#-[-]", "queryNames"));
+			permissions.add(new MBeanPermission("*", "*"));			
 			permissions.add(new FilePermission("<<ALL FILES>>", "read,write,delete,execute"));
 			
 			String hostName = location.getHost();
