@@ -118,9 +118,8 @@ public class LocalSecurityPolicy extends Policy {
 		permissions.add(new RuntimePermission("com.sun.media.jmc.accessMedia"));
 		permissions.add(new RuntimePermission("loadLibrary.*"));
 		permissions.add(new RuntimePermission("createSecurityManager"));
-		permissions.add(new RuntimePermission("accessClassInPackage.jdk.internal.reflect"));
 		permissions.add(new RuntimePermission("getStackWalkerWithClassReference"));
-		permissions.add(new MBeanPermission("*", "*"));	
+        permissions.add(new RuntimePermission("accessClassInPackage.jdk.internal.reflect"));
 		permissions.add(new NetPermission("setDefaultAuthenticator"));
 		permissions.add(new NetPermission("setCookieHandler"));
 		permissions.add(new NetPermission("specifyStreamHandler"));
@@ -133,6 +132,7 @@ public class LocalSecurityPolicy extends Policy {
 		permissions.add(GenericLocalPermission.EXT_GENERIC);
 		permissions.add(new FilePermission("<<ALL FILES>>", "read,write,delete,execute"));
 		permissions.add(new MBeanServerPermission("createMBeanServer"));
+        permissions.add(new MBeanPermission("*", "*"));    
 	}
 
 	/**
@@ -259,27 +259,21 @@ public class LocalSecurityPolicy extends Policy {
 			// Custom permissions
 			permissions.add(StoreHostPermission.forURL(location));
 			permissions.add(new RuntimePermission("com.sun.media.jmc.accessMedia"));
-			permissions.add(new RuntimePermission("accessClassInPackage.jdk.internal.reflect"));
 		} else {
-			permissions.add(new RuntimePermission("accessClassInPackage.jdk.internal.reflect"));
-			permissions.add(new RuntimePermission("loadLibrary.*"));
+
 			permissions.add(new PropertyPermission("java.version", "read"));
 			permissions.add(new PropertyPermission("java.vm.vendor", "read"));
-			permissions.add(new PropertyPermission("java.runtime.name", "read"));
-			permissions.add(new PropertyPermission("java.io.tmpdir", "read"));
-			permissions.add(new PropertyPermission("org.sqlite.tmpdir", "read"));
-			permissions.add(new PropertyPermission("org.sqlite.lib.path", "read"));
-			permissions.add(new PropertyPermission("org.sqlite.lib.name", "read"));
+	        permissions.add(new PropertyPermission("java.runtime.name", "read"));
+	        permissions.add(new PropertyPermission("java.io.tmpdir", "read"));
 			permissions.add(new PropertyPermission("os.name", "read"));
-			permissions.add(new PropertyPermission("os.arch", "read"));
+	        permissions.add(new PropertyPermission("os.arch", "read"));
 			permissions.add(new PropertyPermission("line.separator", "read"));
+            permissions.add(new PropertyPermission("org.sqlite.tmpdir", "read"));
+            permissions.add(new PropertyPermission("org.sqlite.lib.path", "read"));
+            permissions.add(new PropertyPermission("org.sqlite.lib.name", "read"));
 			permissions.add(new SocketPermission(location.getHost(), "connect,resolve"));
-			permissions.add(new MBeanPermission("*", "*"));			
-			permissions.add(new FilePermission("<<ALL FILES>>", "read,write,delete,execute"));
 			
 			String hostName = location.getHost();
-			// Get possible cookie domains for current location
-			// and allow managed store access there.
 			Collection<String> domains = Domains.getPossibleDomains(hostName);
 			for (String domain : domains) {
 				permissions.add(StoreHostPermission.forHost(domain));
