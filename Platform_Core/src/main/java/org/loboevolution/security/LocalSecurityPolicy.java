@@ -262,15 +262,8 @@ public class LocalSecurityPolicy extends Policy {
 		} else {
 
 			permissions.add(new PropertyPermission("java.version", "read"));
-			permissions.add(new PropertyPermission("java.vm.vendor", "read"));
-	        permissions.add(new PropertyPermission("java.runtime.name", "read"));
-	        permissions.add(new PropertyPermission("java.io.tmpdir", "read"));
 			permissions.add(new PropertyPermission("os.name", "read"));
-	        permissions.add(new PropertyPermission("os.arch", "read"));
 			permissions.add(new PropertyPermission("line.separator", "read"));
-            permissions.add(new PropertyPermission("org.sqlite.tmpdir", "read"));
-            permissions.add(new PropertyPermission("org.sqlite.lib.path", "read"));
-            permissions.add(new PropertyPermission("org.sqlite.lib.name", "read"));
 			permissions.add(new SocketPermission(location.getHost(), "connect,resolve"));
 			
 			String hostName = location.getHost();
