@@ -37,7 +37,7 @@ public class TextAreaLayout extends CommonWidgetLayout {
 	 * Instantiates a new text area layout.
 	 */
 	public TextAreaLayout() {
-		super(ADD_INLINE, true);
+		super(ADD_INLINE);
 	}
 
 	/*

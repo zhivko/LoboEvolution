@@ -37,7 +37,7 @@ public class ButtonLayout extends CommonWidgetLayout {
 	 * Instantiates a new button layout.
 	 */
 	public ButtonLayout() {
-		super(ADD_INLINE, true);
+		super(ADD_INLINE);
 	}
 
 	/*

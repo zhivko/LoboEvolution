@@ -37,7 +37,7 @@ public class SelectLayout extends CommonWidgetLayout {
 	 * Instantiates a new select layout.
 	 */
 	public SelectLayout() {
-		super(ADD_INLINE, true);
+		super(ADD_INLINE);
 	}
 
 	/*

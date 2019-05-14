@@ -37,7 +37,7 @@ public class ImgLayout extends CommonWidgetLayout {
 	 * Instantiates a new img layout.
 	 */
 	public ImgLayout() {
-		super(ADD_INLINE, true);
+		super(ADD_INLINE);
 	}
 
 	/*

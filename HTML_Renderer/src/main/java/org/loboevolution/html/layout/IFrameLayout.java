@@ -38,7 +38,7 @@ public class IFrameLayout extends CommonWidgetLayout {
 	 * Instantiates a new i frame layout.
 	 */
 	public IFrameLayout() {
-		super(ADD_INLINE, true);
+		super(ADD_INLINE);
 	}
 
 	/*

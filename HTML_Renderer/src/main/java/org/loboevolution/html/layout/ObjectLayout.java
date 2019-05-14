@@ -51,7 +51,7 @@ public class ObjectLayout extends CommonWidgetLayout {
 	 *            the uses align attribute
 	 */
 	public ObjectLayout(boolean tryToRenderContent, boolean usesAlignAttribute) {
-		super(ADD_INLINE, usesAlignAttribute);
+		super(ADD_INLINE);
 		this.tryToRenderContent = tryToRenderContent;
 	}
 

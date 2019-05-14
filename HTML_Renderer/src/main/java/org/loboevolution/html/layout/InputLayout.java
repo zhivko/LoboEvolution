@@ -51,7 +51,7 @@ public class InputLayout extends CommonWidgetLayout {
 	 * Instantiates a new input layout.
 	 */
 	public InputLayout() {
-		super(ADD_INLINE, true);
+		super(ADD_INLINE);
 	}
 
 	@Override

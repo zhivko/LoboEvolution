@@ -34,7 +34,7 @@ import org.loboevolution.html.rendererblock.RBlockViewport;
 public class CanvasLayout extends CommonWidgetLayout {
 
 	public CanvasLayout() {
-		super(ADD_AS_BLOCK, true);
+		super(ADD_AS_BLOCK);
 	}
 
 	@Override

@@ -34,7 +34,7 @@ import org.loboevolution.html.svgimpl.SVGSVGElementImpl;
 public class SVGLayout extends CommonWidgetLayout {
 
 	public SVGLayout() {
-		super(ADD_AS_BLOCK, true);
+		super(ADD_AS_BLOCK);
 	}
 
 	@Override
